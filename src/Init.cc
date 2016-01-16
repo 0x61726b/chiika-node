@@ -1,5 +1,6 @@
 #include <nan.h>
 #include "Root/Root.h"
+#include "ApiWrapper.h"
 
 using v8::FunctionTemplate;
 
@@ -9,6 +10,8 @@ using v8::FunctionTemplate;
 NAN_MODULE_INIT(InitAll) {
   ChiikaApi::Root r;
 	r.Initialize("D:/Arken/C++/ElectronProjects/chiika-node");
+
+	RootWrapper::Init(target);
 }
 
 NODE_MODULE(ChiikaNative, InitAll)

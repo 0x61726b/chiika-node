@@ -13,7 +13,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "node-gyp rebuild --target=0.36.3 --arch=x64 --dist-url=https://atom.io/download/atom-shell",
+    "rebuild": "node-gyp rebuild --target=0.36.3 --arch=x64 --dist-url=https://atom.io/download/atom-shell",
+    "build": "node-gyp build --target=0.36.3 --arch=x64 --dist-url=https://atom.io/download/atom-shell",
     "conf": "node-gyp configure --arch=x64"
   },
   "repository": {

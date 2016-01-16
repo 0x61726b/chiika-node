@@ -24,8 +24,11 @@ app.on('ready', function() {
   mainWindow.loadUrl('file://' + __dirname + '/index.html');
 
   var customNode = require('./../');
-
+  var root = new customNode.Root();
   console.log(customNode);
+  console.log(root.test1);
+  console.log(root.test2);
+  console.log(root.test3);
 
   // Open the devtools?
   //mainWindow.openDevTools();

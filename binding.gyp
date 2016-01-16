@@ -5,7 +5,8 @@
             "cflags_cc": [ "-std=c++11" ],
             "sources": [
                     "src/Init.cc",
-                    "src/functions.cc"
+                    "src/ApiWrapper.h",
+                    "src/ApiWrapper.cc"
             ],
             "cflags": [
                 "-std=c++11"
