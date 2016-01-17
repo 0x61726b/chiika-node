@@ -21,12 +21,17 @@
 #define __ApiWrapper_h__
 //----------------------------------------------------------------------------
 #include <nan.h>
+#include "Root\Root.h"
+#include "Request\RequestInterface.h"
 //----------------------------------------------------------------------------
 
-class RootWrapper : public Nan::ObjectWrap 
+#define V8Value v8::Local<v8::Value>
+#define DEFINE_PROPERTY(name,value) v8::String::NewFromUtf8(v8::Isolate::GetCurrent(),name),value)
+
+class RootWrapper : public Nan::ObjectWrap,public ChiikaApi::RequestListener
 {
 public:
-	static NAN_MODULE_INIT(Init);
+	static void Init(Nan::ADDON_REGISTER_FUNCTION_ARGS_TYPE target,ChiikaApi::Root* r);
 
 public:
 	explicit RootWrapper();
@@ -34,11 +39,19 @@ public:
 
 	static NAN_METHOD(ApiVersion);
 	static NAN_METHOD(New);
+	static NAN_METHOD(VerifyUser);
 	static Nan::Persistent<v8::Function> constructor;
 
-	static NAN_PROPERTY_GETTER(ApiVersionGetter);
-	
+	static NAN_PROPERTY_GETTER(RootGetter);
+	void OnSuccess(ChiikaApi::RequestInterface*);
+	void OnError(ChiikaApi::RequestInterface*);
+
+	//RequestInterface
+
+
 	std::string version;
+	static ChiikaApi::Root* root_;
 };
+
 
 #endif

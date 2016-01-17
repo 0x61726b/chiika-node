@@ -1,6 +1,5 @@
 var app = require('app');  // Module to control application life.
 var BrowserWindow = require('browser-window');  // Module to create native browser window.
-
 // Report crashes to our server.
 require('crash-reporter').start();
 
@@ -23,15 +22,9 @@ app.on('ready', function() {
   // and load the index.html of the app.
   mainWindow.loadUrl('file://' + __dirname + '/index.html');
 
-  var customNode = require('./../');
-  var root = new customNode.Root();
-  console.log(customNode);
-  console.log(root.test1);
-  console.log(root.test2);
-  console.log(root.test3);
 
   // Open the devtools?
-  //mainWindow.openDevTools();
+  mainWindow.openDevTools();
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function() {
