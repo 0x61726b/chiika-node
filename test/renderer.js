@@ -10,5 +10,6 @@ var r2 = new chiika.Root({
       userName:"arkenthera",
       pass:"123asd456",
       debugMode:true,
-      appMode:true
+      appMode:true,
+      modulePath:lib
     });

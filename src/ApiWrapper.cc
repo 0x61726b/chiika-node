@@ -41,7 +41,7 @@ using v8::Null;
 using v8::Object;
 using v8::String;
 using v8::Value;
-
+using v8::Handle;
 
 void RootWrapper::Init(Nan::ADDON_REGISTER_FUNCTION_ARGS_TYPE target, ChiikaApi::Root* r)
 {
@@ -90,20 +90,19 @@ void RootWrapper::OnSuccess(ChiikaApi::RequestInterface* r)
 		v8::Isolate*	isolate = It->second.second;
 
 		v8::Locker lock(isolate);
-		v8::Isolate::Scope isolateScope(isolate);
+		v8::HandleScope handle(isolate);
+		v8::TryCatch try_catch(isolate);
 		
-		Local<v8::String> str = v8::String::NewFromUtf8(isolate, "test");
-		Local<v8::Array> returnArray = v8::Array::New(isolate, 1);
+		Handle<v8::String> str = v8::String::NewFromUtf8(isolate, "test");
+		
 
+		
 		const unsigned argc = 1;
-		Local<Value> argv[argc] = { Null(isolate) };
-
+		Handle<Value> argv[argc] = { Null(isolate) };
 		
-
-		Local<v8::Array> xasd = v8::Array::New(isolate, 1);
 		//callback->Call(Null(isolate), argc, argv);
 
-		//callback->Call(Null(isolate),0,0);
+		callback->Call(Null(isolate),0,0);
 
 		int x = 0;
 	}
@@ -121,7 +120,7 @@ void RootWrapper::OnError(ChiikaApi::RequestInterface* r)
 
 		v8::Locker lock(isolate);
 		v8::Isolate::Scope isolateScope(isolate);
-		
+		v8::HandleScope scope(isolate);
 
 		Local<v8::Array> returnArray = v8::Array::New(isolate, 1);
 		const unsigned argc = 1;
@@ -138,12 +137,14 @@ NAN_METHOD(RootWrapper::VerifyUser)
 	
 	v8::Handle<Function> callback = v8::Handle<Function>::Cast(info[0]);
 
+	v8::Locker lock(isolate);
+	
 	ChiikaApi::Root::Get()->GetRequestManager()->VerifyUser(obj);
 	
 	//Return
 	obj->m_CallbackMap.insert(std::make_pair("VerifyUserSuccess", 
 		std::make_pair((callback), isolate)));
-	obj->m_CallbackMap.insert(std::make_pair("VerifyUserError", std::make_pair(callback, isolate)));
+	/*obj->m_CallbackMap.insert(std::make_pair("VerifyUserError", std::make_pair(callback, isolate)));*/
 
 
 }
@@ -152,7 +153,7 @@ NAN_METHOD(RootWrapper::New)
 {
 	if (info.IsConstructCall())
 	{
-		v8::Isolate* isolate = v8::Isolate::GetCurrent();
+		v8::Isolate* isolate = info.GetIsolate();
 		RootWrapper *obj = new RootWrapper;
 		obj->Wrap(info.This());
 
@@ -176,12 +177,12 @@ NAN_METHOD(RootWrapper::New)
 		pass = std::string(*v8::String::Utf8Value(vPass));
 		modulePath = std::string(*v8::String::Utf8Value(vModulePath));
 
-		RootOptions opts;
-		opts.appMode = isAppMode;
-		opts.debugMode = isDebugMode;
-		opts.userName = userName;
-		opts.passWord = pass;
-		opts.modulePath = modulePath;
+		RootOptions* opts = new RootOptions;
+		opts->appMode = isAppMode;
+		opts->debugMode = isDebugMode;
+		opts->userName = strdup(userName.c_str());
+		opts->passWord = strdup(pass.c_str());
+		opts->modulePath = strdup(modulePath.c_str());
 
 
 		root_->Initialize(opts);
@@ -207,12 +208,12 @@ NAN_PROPERTY_GETTER(RootWrapper::RootGetter)
 
 	if (strcmp(prop, kArgsAppMode) == 0)
 	{
-		bool appMode = obj->root_->GetRootOptions().appMode;
+		bool appMode = obj->root_->GetRootOptions()->appMode;
 		info.GetReturnValue().Set(Nan::New(appMode));
 	}
 	if (strcmp(prop, kArgsDebugMode) == 0)
 	{
-		bool debugMode = obj->root_->GetRootOptions().debugMode;
+		bool debugMode = obj->root_->GetRootOptions()->debugMode;
 		info.GetReturnValue().Set(Nan::New(debugMode));
 	}
 	if (strcmp(prop, kArgsUserName) == 0)
@@ -225,7 +226,7 @@ NAN_PROPERTY_GETTER(RootWrapper::RootGetter)
 	}
 	if (strcmp(prop, kArgsModulePath) == 0)
 	{
-		std::string module = obj->root_->GetRootOptions().modulePath;
+		std::string module = obj->root_->GetRootOptions()->modulePath;
 		info.GetReturnValue().Set(Nan::New(module.c_str()).ToLocalChecked());
 	}
 }
