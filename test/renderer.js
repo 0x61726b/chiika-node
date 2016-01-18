@@ -9,5 +9,6 @@ var lib  = path.join(path.dirname(fs.realpathSync(chiika.path)), '../');
 var r2 = new chiika.Root({
       userName:"arkenthera",
       pass:"123asd456",
-      debugMode:true
+      debugMode:true,
+      appMode:true
     });

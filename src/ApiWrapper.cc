@@ -43,7 +43,7 @@ using v8::String;
 using v8::Value;
 
 
-void RootWrapper::Init(Nan::ADDON_REGISTER_FUNCTION_ARGS_TYPE target,ChiikaApi::Root* r)
+void RootWrapper::Init(Nan::ADDON_REGISTER_FUNCTION_ARGS_TYPE target, ChiikaApi::Root* r)
 {
 	root_ = r;
 	v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
@@ -52,20 +52,20 @@ void RootWrapper::Init(Nan::ADDON_REGISTER_FUNCTION_ARGS_TYPE target,ChiikaApi::
 
 	v8::Local<v8::ObjectTemplate> inst = tpl->InstanceTemplate();
 
-	Nan::SetPrototypeMethod(tpl,"verifyUser",RootWrapper::VerifyUser);
+	Nan::SetPrototypeMethod(tpl, "verifyUser", RootWrapper::VerifyUser);
 
-	tpl->Set(DEFINE_PROPERTY(kArgsAppMode,Nan::New(false));
-	tpl->Set(DEFINE_PROPERTY(kArgsDebugMode,Nan::New(false));
+	tpl->Set(DEFINE_PROPERTY(kArgsAppMode, Nan::New(false));
+	tpl->Set(DEFINE_PROPERTY(kArgsDebugMode, Nan::New(false));
 
-	tpl->Set(DEFINE_PROPERTY(kArgsUserName,Nan::New("Not_Defined").ToLocalChecked());
-	tpl->Set(DEFINE_PROPERTY(kArgsPass,Nan::New("Not_Defined").ToLocalChecked());
-	tpl->Set(DEFINE_PROPERTY(kArgsModulePath,Nan::New("Not_Defined").ToLocalChecked());
+	tpl->Set(DEFINE_PROPERTY(kArgsUserName, Nan::New("Not_Defined").ToLocalChecked());
+	tpl->Set(DEFINE_PROPERTY(kArgsPass, Nan::New("Not_Defined").ToLocalChecked());
+	tpl->Set(DEFINE_PROPERTY(kArgsModulePath, Nan::New("Not_Defined").ToLocalChecked());
 
 	Nan::SetNamedPropertyHandler(inst,
 		RootWrapper::RootGetter);
 
 	constructor.Reset(Nan::GetFunction(tpl).ToLocalChecked());
-	Nan::Set(target,Nan::New("Root").ToLocalChecked(),Nan::GetFunction(tpl).ToLocalChecked());
+	Nan::Set(target, Nan::New("Root").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
 
 
 }
@@ -78,13 +78,56 @@ RootWrapper::~RootWrapper()
 {
 }
 
-void RootWrapper::OnSuccess(ChiikaApi::RequestInterface* )
+void RootWrapper::OnSuccess(ChiikaApi::RequestInterface* r)
 {
-	root_->m_pLogManager->LogMessage("Success");
+	root_->m_pLogManager->LogMessage("Success " + r->GetName());
+
+	CallbackMap::iterator It = m_CallbackMap.find(r->GetName() + "Success");
+
+	if (It != m_CallbackMap.end())
+	{
+		v8::Handle<Function> callback = It->second.first;
+		v8::Isolate*	isolate = It->second.second;
+
+		v8::Locker lock(isolate);
+		v8::Isolate::Scope isolateScope(isolate);
+		
+		Local<v8::String> str = v8::String::NewFromUtf8(isolate, "test");
+		Local<v8::Array> returnArray = v8::Array::New(isolate, 1);
+
+		const unsigned argc = 1;
+		Local<Value> argv[argc] = { Null(isolate) };
+
+		
+
+		Local<v8::Array> xasd = v8::Array::New(isolate, 1);
+		//callback->Call(Null(isolate), argc, argv);
+
+		//callback->Call(Null(isolate),0,0);
+
+		int x = 0;
+	}
 }
-void RootWrapper::OnError(ChiikaApi::RequestInterface*)
+void RootWrapper::OnError(ChiikaApi::RequestInterface* r)
 {
 	root_->m_pLogManager->LogMessage("Error");
+
+	CallbackMap::iterator It = m_CallbackMap.find(r->GetName() + "Error");
+
+	if (It != m_CallbackMap.end())
+	{
+		Local<Function> callback = It->second.first;
+		v8::Isolate*	isolate = It->second.second;
+
+		v8::Locker lock(isolate);
+		v8::Isolate::Scope isolateScope(isolate);
+		
+
+		Local<v8::Array> returnArray = v8::Array::New(isolate, 1);
+		const unsigned argc = 1;
+		Local<Value> argv[argc] = {};
+		callback->Call(Null(isolate), 0, 0);
+	}
 }
 NAN_METHOD(RootWrapper::VerifyUser)
 {
@@ -92,37 +135,22 @@ NAN_METHOD(RootWrapper::VerifyUser)
 	obj->Wrap(info.This());
 
 	v8::Isolate* isolate = info.GetIsolate();
-	Local<Function> callback = Local<Function>::Cast(info[0]);
+	
+	v8::Handle<Function> callback = v8::Handle<Function>::Cast(info[0]);
 
-	ChiikaApi::UserInfo ui;
-	ui.UserName = "arkenthera";
-	ui.Pass = "123";
-
-	ChiikaApi::AccountVerifyRequest request;
-	request.Initialize();
-	request.SetOptions();
-	request.SetUserInfo(ui);
-	request.AddListener(obj);
-	request.Initiate();
-
-
+	ChiikaApi::Root::Get()->GetRequestManager()->VerifyUser(obj);
+	
 	//Return
-	Local<v8::Array> returnArray = v8::Array::New(isolate,3);
+	obj->m_CallbackMap.insert(std::make_pair("VerifyUserSuccess", 
+		std::make_pair((callback), isolate)));
+	obj->m_CallbackMap.insert(std::make_pair("VerifyUserError", std::make_pair(callback, isolate)));
 
-	returnArray->Set(0,String::NewFromUtf8(isolate,"Test1"));
-	returnArray->Set(1,String::NewFromUtf8(isolate,"Test2"));
-	returnArray->Set(2,String::NewFromUtf8(isolate,"Test3"));
-
-	const unsigned argc = 1;
-	Local<Value> argv[argc] ={returnArray};
-
-	callback->Call(Null(isolate),argc,argv);
 
 }
 
 NAN_METHOD(RootWrapper::New)
 {
-	if(info.IsConstructCall())
+	if (info.IsConstructCall())
 	{
 		v8::Isolate* isolate = v8::Isolate::GetCurrent();
 		RootWrapper *obj = new RootWrapper;
@@ -136,11 +164,11 @@ NAN_METHOD(RootWrapper::New)
 		std::string modulePath = "";
 		v8::Local<v8::Array> args = info[0].As<v8::Array>();
 
-		V8Value vAppMode = args->Get(v8::String::NewFromUtf8(isolate,kArgsAppMode));
-		V8Value vDebugMode = args->Get(v8::String::NewFromUtf8(isolate,kArgsDebugMode));
-		V8Value vUserName = args->Get(v8::String::NewFromUtf8(isolate,kArgsUserName));
-		V8Value vPass = args->Get(v8::String::NewFromUtf8(isolate,kArgsPass));
-		V8Value vModulePath = args->Get(v8::String::NewFromUtf8(isolate,kArgsModulePath));
+		V8Value vAppMode = args->Get(v8::String::NewFromUtf8(isolate, kArgsAppMode));
+		V8Value vDebugMode = args->Get(v8::String::NewFromUtf8(isolate, kArgsDebugMode));
+		V8Value vUserName = args->Get(v8::String::NewFromUtf8(isolate, kArgsUserName));
+		V8Value vPass = args->Get(v8::String::NewFromUtf8(isolate, kArgsPass));
+		V8Value vModulePath = args->Get(v8::String::NewFromUtf8(isolate, kArgsModulePath));
 
 		isAppMode = vAppMode->BooleanValue();
 		isDebugMode = vDebugMode->BooleanValue();
@@ -157,7 +185,7 @@ NAN_METHOD(RootWrapper::New)
 
 
 		root_->Initialize(opts);
-		
+
 
 		info.GetReturnValue().Set(info.This());
 
@@ -165,9 +193,9 @@ NAN_METHOD(RootWrapper::New)
 	}
 	else {
 		const int argc = 1;
-		v8::Local<v8::Value> argv[argc] ={info[0]};
+		v8::Local<v8::Value> argv[argc] = { info[0] };
 		v8::Local<v8::Function> cons = Nan::New(constructor);
-		info.GetReturnValue().Set(cons->NewInstance(argc,argv));
+		info.GetReturnValue().Set(cons->NewInstance(argc, argv));
 	}
 }
 
@@ -177,25 +205,25 @@ NAN_PROPERTY_GETTER(RootWrapper::RootGetter)
 
 	const char* prop = *v8::String::Utf8Value(property);
 
-	if(strcmp(prop,kArgsAppMode) == 0)
+	if (strcmp(prop, kArgsAppMode) == 0)
 	{
 		bool appMode = obj->root_->GetRootOptions().appMode;
 		info.GetReturnValue().Set(Nan::New(appMode));
 	}
-	if(strcmp(prop,kArgsDebugMode) == 0)
+	if (strcmp(prop, kArgsDebugMode) == 0)
 	{
 		bool debugMode = obj->root_->GetRootOptions().debugMode;
 		info.GetReturnValue().Set(Nan::New(debugMode));
 	}
-	if(strcmp(prop,kArgsUserName) == 0)
+	if (strcmp(prop, kArgsUserName) == 0)
 	{
 		info.GetReturnValue().Set(Nan::New("nope").ToLocalChecked());
 	}
-	if(strcmp(prop,kArgsPass) == 0)
+	if (strcmp(prop, kArgsPass) == 0)
 	{
 		info.GetReturnValue().Set(Nan::New("nope").ToLocalChecked());
 	}
-	if(strcmp(prop,kArgsModulePath) == 0)
+	if (strcmp(prop, kArgsModulePath) == 0)
 	{
 		std::string module = obj->root_->GetRootOptions().modulePath;
 		info.GetReturnValue().Set(Nan::New(module.c_str()).ToLocalChecked());

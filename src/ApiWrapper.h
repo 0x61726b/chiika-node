@@ -51,6 +51,10 @@ public:
 
 	std::string version;
 	static ChiikaApi::Root* root_;
+
+	
+	typedef std::map<std::string, std::pair<v8::Handle<v8::Function>, v8::Isolate*> > CallbackMap;
+	CallbackMap m_CallbackMap;
 };
 
 

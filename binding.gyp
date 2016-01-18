@@ -25,14 +25,22 @@
             "copies":[{
                 'destination': '<(PRODUCT_DIR)',
                 "files":[
-                    "deps/curl/x64/Release/libcurl_imp.lib",
-                    "deps/curl/x64/Release/libcurl.dll",
-                    "deps/jsoncpp/x64/Release/jsoncpp.lib",
-                    "deps/jsoncpp/x64/Release/jsoncpp.dll",
-                    "deps/pugixml/x64/Release/pugixml.lib",
-                    "deps/pugixml/x64/Release/pugixml.dll",
-                    "deps/Chiika/x64/Release/ChiikaApi.lib",
-                    "deps/Chiika/x64/Release/ChiikaApi.dll"
+                    "deps/x86_64/Release/libcurl_imp.lib",
+                    "deps/x86_64/Release/libcurl.dll",
+                    "deps/x86_64/Release/jsoncpp.lib",
+                    "deps/x86_64/Release/jsoncpp.dll",
+                    "deps/x86_64/Release/pugixml.lib",
+                    "deps/x86_64/Release/pugixml.dll",
+                    "deps/x86_64/Release/ChiikaApi.lib",
+                    "deps/x86_64/Release/ChiikaApi.dll",
+                                        "deps/x86_64/Debug/libcurl_imp.lib",
+                                        "deps/x86_64/Debug/libcurl.dll",
+                                        "deps/x86_64/Debug/jsoncpp.lib",
+                                        "deps/x86_64/Debug/jsoncpp.dll",
+                                        "deps/x86_64/Debug/pugixml.lib",
+                                        "deps/x86_64/Debug/pugixml.dll",
+                                        "deps/x86_64/Debug/ChiikaApi.lib",
+                                        "deps/x86_64/Debug/ChiikaApi.dll"
                 ]
             }],
             "configurations": {
@@ -50,10 +58,7 @@
                             "LinkTimeCodeGeneration": 1,
                             "LinkIncremental": 1,
                             "AdditionalLibraryDirectories": [
-                                "<(CURRENT_DIR)/deps/curl/x64/Debug",
-                                "<(CURRENT_DIR)/deps/jsoncpp/x64/Debug",
-                                "<(CURRENT_DIR)/deps/pugixml/x64/Debug",
-                                "<(CURRENT_DIR)/deps/Chiika/x64/Debug"
+                                "$(SolutionDir)/../deps/x86_64/Debug",
                              ]
                         }
                     }
@@ -70,10 +75,7 @@
                         },
                         "VCLinkerTool": {
                             "AdditionalLibraryDirectories": [
-                                                            "$(SolutionDir)/../deps/curl/x64/Release",
-                                                            "$(SolutionDir)/../deps/jsoncpp/x64/Release",
-                                                            "$(SolutionDir)/../deps/pugixml/x64/Release",
-                                                            "$(SolutionDir)/../deps/Chiika/x64/Release"
+                                                            "$(SolutionDir)/../deps/x86_64/Release"
                              ]
                         }
                     }
@@ -81,7 +83,7 @@
             },
             "include_dirs": [
                 "<!(node -e \"require('nan')\")",
-                "D:\Chiika\ChiikaApiGit\ChiikaApi\ChiikaAPI"
+                "D:/Users/agezer/Documents/GitHub/ChiikaApi/ChiikaAPI"
             ]
         }
     ]
