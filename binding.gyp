@@ -75,7 +75,7 @@
             },
             "include_dirs": [
                 "<!(node -e \"require('nan')\")",
-                "D:/Users/agezer/Documents/GitHub/ChiikaApi/ChiikaAPI"
+                "D:/Chiika/ChiikaApiGit/ChiikaApi/ChiikaAPI"
             ]
         }
     ]

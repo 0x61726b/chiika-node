@@ -53,9 +53,8 @@ public:
 	static ChiikaApi::Root* root_;
 
 	
-	//typedef std::map<std::string, std::pair<v8::Persistent<v8::Function>
-	//	, v8::Isolate*> > CallbackMap;
-	//CallbackMap m_CallbackMap;
+	typedef std::map<std::string,Nan::Persistent<v8::Function,v8::CopyablePersistentTraits<v8::Function>>> CallbackMap;
+	CallbackMap m_CallbackMap;
 
 
 

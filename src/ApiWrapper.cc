@@ -46,15 +46,12 @@ using v8::ObjectTemplate;
 using v8::Context;
 using v8::Persistent;
 
-class ArrayBufferAllocator : public v8::ArrayBuffer::Allocator {
-public:
-	virtual void* Allocate(size_t length) {
-		void* data = AllocateUninitialized(length);
-		return data == NULL ? data : memset(data, 0, length);
-	}
-	virtual void* AllocateUninitialized(size_t length) { return malloc(length); }
-	virtual void Free(void* data, size_t) { free(data); }
+struct CallbackIteratorParams
+{
+	std::string Name;
+	Nan::Persistent<v8::Function,v8::CopyablePersistentTraits<v8::Function>> Callback;
 };
+
 
 void RootWrapper::Init(Nan::ADDON_REGISTER_FUNCTION_ARGS_TYPE target, ChiikaApi::Root* r)
 {
@@ -97,42 +94,37 @@ RootWrapper::~RootWrapper()
 
 void RootWrapper::OnSuccess(ChiikaApi::RequestInterface* r)
 {
-	//root_->m_pLogManager->LogMessage("Success " + r->GetName());
+	root_->m_pLogManager->LogMessage("Success " + r->GetName());
 
-	//CallbackMap::iterator It = m_CallbackMap.find(r->GetName() + "Success");
+	CallbackMap::iterator It = m_CallbackMap.find(r->GetName() + "Success");
 
-	//
-	//v8::Isolate* isolate = It->second.second;
-	//{
-	//	v8::Locker lock(isolate);
-	//	Isolate::Scope isolate_scope(isolate);
-	//	v8::HandleScope handle_scope(isolate);
+	if(It != m_CallbackMap.end())
+	{
+		CallbackIteratorParams* callback = new CallbackIteratorParams;
+		callback->Callback = It->second;
+		callback->Name = It->first;
+		async.data = reinterpret_cast<void*>(callback);
 
-	//	bool locked = v8::Locker::IsLocked(isolate);
-
-	//	
-	//	const unsigned argc = 1;
-	//	Handle<Value> argv[argc] = { v8::Number::New(isolate,5)};
-	//	Persistent<Function> callback = It->second.first;
-	//	
-
-	//	Local<Function>::New(isolate, callback)->Call(isolate->GetCurrentContext()->Global(), argc, argv);
-	//	callback.Reset();
-	//	
-	//	uv_queue_work(uv_default_loop(), NULL, Wtf, WtfEnd);
-	//}
-	//bool locked = v8::Locker::IsLocked(isolate);
+		uv_async_send(&async);
+	}
 	
-	uv_async_send(&async);
 }
 void RootWrapper::Wtf(uv_async_t* req)
 {
-	int x = 0;
-}
-void RootWrapper::WtfEnd(uv_work_t* req, int status)
-{
+	CallbackIteratorParams* params = reinterpret_cast<CallbackIteratorParams*>(req->data);
 
+	if(params)
+	{
+		Local<Function> local = Nan::New(params->Callback);
+		local->Call(Null(Isolate::GetCurrent()),0,0);
+	}
+	
+	
+	
+	
+	
 }
+
 void RootWrapper::OnError(ChiikaApi::RequestInterface* r)
 {
 	root_->m_pLogManager->LogMessage("Error");
@@ -154,10 +146,7 @@ void RootWrapper::OnError(ChiikaApi::RequestInterface* r)
 	//	callback->Call(Null(isolate), 0, 0);
 	//}
 }
-struct my_struct
-{
-	Persistent<Function> callback;
-};
+
 NAN_METHOD(RootWrapper::VerifyUser)
 {
 	RootWrapper *obj = new RootWrapper;
@@ -172,17 +161,15 @@ NAN_METHOD(RootWrapper::VerifyUser)
 	request->SetOptions();
 	request->AddListener(obj);
 
-	//Persistent<Function> callback;
-	//callback.Reset(isolate, info[0].As<Function>());
-	//
+	Nan::Persistent<Function,v8::CopyablePersistentTraits<Function>> callback;
+	
+	callback.Reset((info[0].As<Function>()));
 
-	//Local<Function>::New(isolate, callback)->Call(isolate->GetCurrentContext()->Global(), 0, 0);
-	//callback.Reset();
+
 
 
 	//Return
-	//obj->m_CallbackMap.insert(std::make_pair("VerifyUserSuccess",
-	//std::make_pair(callback, isolate)));
+	obj->m_CallbackMap.insert(std::make_pair("VerifyUserSuccess",callback));
 	/*obj->m_CallbackMap.insert(std::make_pair("VerifyUserError", std::make_pair(callback, isolate)));*/
 
 	//v8::Locker lock(isolate);
