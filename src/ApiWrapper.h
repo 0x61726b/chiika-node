@@ -53,8 +53,18 @@ public:
 	static ChiikaApi::Root* root_;
 
 	
-	typedef std::map<std::string, std::pair<v8::Handle<v8::Function>, v8::Isolate*> > CallbackMap;
-	CallbackMap m_CallbackMap;
+	//typedef std::map<std::string, std::pair<v8::Persistent<v8::Function>
+	//	, v8::Isolate*> > CallbackMap;
+	//CallbackMap m_CallbackMap;
+
+
+
+	static void Wtf(uv_async_t* req);
+	static void WtfEnd(uv_work_t* req, int status);
+
+	uv_async_t async;
+	uv_loop_t *loop;
+
 };
 
 

@@ -5,17 +5,19 @@
   "main": "index.js",
   "devDependencies": {
     "nan": "^2.0.5",
-    "node-gyp": "^1.0.3"
+    "node-gyp": "^1.0.3",
+    "node-pre-gyp": "^0.6.19"
   },
   "dependencies": {
     "async": "^1.5.2",
     "bindings": "^1.2.1",
-    "electron-prebuilt": "^0.36.4"
+    "electron-prebuilt": "^0.36.4",
+    "node-inspector": "^0.12.5"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "rebuild": "node-gyp rebuild --debug --target=0.36.3 --arch=x64 --dist-url=https://atom.io/download/atom-shell",
-    "build": "node-gyp build --debug --target=0.36.3 --arch=x64 --dist-url=https://atom.io/download/atom-shell",
+    "rebuild": "node-gyp rebuild --debug --target=0.36.4 --arch=x64 --dist-url=https://atom.io/download/atom-shell",
+    "build": "node-gyp build --debug --target=0.36.4 --arch=x64 --dist-url=https://atom.io/download/atom-shell",
     "conf": "node-gyp configure --debug --arch=x64"
   },
   "repository": {
@@ -31,5 +33,10 @@
   "bugs": {
     "url": "https://github.com/arkenthera/chiika-node/issues"
   },
-  "homepage": "https://github.com/arkenthera/chiika-node#readme"
+  "homepage": "https://github.com/arkenthera/chiika-node#readme",
+  "binary": {
+    "module_name": "ChiikaNative",
+    "module_path": "./lib/binding/",
+    "host": "https://your_module.s3-us-west-1.amazonaws.com"
+  }
 }

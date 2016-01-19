@@ -25,14 +25,6 @@
             "copies":[{
                 'destination': '<(PRODUCT_DIR)',
                 "files":[
-                    "deps/x86_64/Release/libcurl_imp.lib",
-                    "deps/x86_64/Release/libcurl.dll",
-                    "deps/x86_64/Release/jsoncpp.lib",
-                    "deps/x86_64/Release/jsoncpp.dll",
-                    "deps/x86_64/Release/pugixml.lib",
-                    "deps/x86_64/Release/pugixml.dll",
-                    "deps/x86_64/Release/ChiikaApi.lib",
-                    "deps/x86_64/Release/ChiikaApi.dll",
                                         "deps/x86_64/Debug/libcurl_imp.lib",
                                         "deps/x86_64/Debug/libcurl.dll",
                                         "deps/x86_64/Debug/jsoncpp.lib",
@@ -83,7 +75,7 @@
             },
             "include_dirs": [
                 "<!(node -e \"require('nan')\")",
-                "D:/Chiika/ChiikaApiGit/ChiikaApi/ChiikaAPI"
+                "D:/Users/agezer/Documents/GitHub/ChiikaApi/ChiikaAPI"
             ]
         }
     ]
