@@ -24,7 +24,7 @@ using namespace ChiikaApi;
 
 namespace Converters
 {
-	v8::Local<v8::Object> AnimeListToV8Value(ChiikaApi::Root* root_)
+	v8::Local<v8::Object> AnimeListToV8(ChiikaApi::Root* root_)
 	{
 		Local<Object> val = Nan::New<v8::Object>();
 		UserInfo userInfo = root_->GetUser();
@@ -33,25 +33,25 @@ namespace Converters
 
 		std::vector<const char*> userKeyList =
 		{
-			kUserId, kUserName, kUserWatching, kUserCompleted, kUserOnhold, kUserDropped, kUserPtw, kUserDaysSpentWatching,
-			kUserReading, kUserPtr, kUserDaysSpentReading
+			kUserId,kUserName,kUserWatching,kUserCompleted,kUserOnhold,kUserDropped,kUserPtw,kUserDaysSpentWatching,
+			kUserReading,kUserPtr,kUserDaysSpentReading
 		};
 
 		std::vector<const char*> animeKeyList =
 		{
-			kSeriesAnimedbId, kSeriesTitle, kSeriesSynonyms, kSeriesEpisodes, kSeriesType, kSeriesStatus,
-			kSeriesStart, kSeriesEnd, kSeriesImage
+			kSeriesAnimedbId,kSeriesTitle,kSeriesSynonyms,kSeriesEpisodes,kSeriesType,kSeriesStatus,
+			kSeriesStart,kSeriesEnd,kSeriesImage
 		};
 
 		std::vector<const char*> userAnimeKeyList =
 		{
-			kMyId, kMyWatchedEpisodes, kMyStartDate, kMyFinishDate, kMyScore, kMyStatus,
-			kMyRewatching, kMyRewatchingEp, kMyLastUpdated
+			kMyId,kMyWatchedEpisodes,kMyStartDate,kMyFinishDate,kMyScore,kMyStatus,
+			kMyRewatching,kMyRewatchingEp,kMyLastUpdated
 		};
 		UserAnimeList::iterator It = animeList.begin();
 		Local<Array> animeArray = Nan::New<v8::Array>((int)animeList.size());
 		int index = 0;
-		for (It; It != animeList.end(); ++It)
+		for(It; It != animeList.end(); ++It)
 		{
 			Local<Object> singleAnimeObj = Nan::New<v8::Object>();
 			Local<Object> animeObj = Nan::New<v8::Object>();
@@ -59,31 +59,55 @@ namespace Converters
 
 			Anime anime = userAnime.Anime;
 
-			FOR_(animeKeyList, j)
+			FOR_(animeKeyList,j)
 			{
 				Nan::Set(animeObj,
 					Nan::New(animeKeyList[j]).ToLocalChecked(),
 					Nan::New(anime.GetKeyValue(animeKeyList[j])).ToLocalChecked());
 			}
-			Nan::Set(singleAnimeObj, Nan::New("anime").ToLocalChecked(), animeObj);
+			Nan::Set(singleAnimeObj,Nan::New("anime").ToLocalChecked(),animeObj);
 
-			FOR_(userAnimeKeyList, k)
+			FOR_(userAnimeKeyList,k)
 			{
 				Nan::Set(singleAnimeObj,
 					Nan::New(userAnimeKeyList[k]).ToLocalChecked(),
 					Nan::New(userAnime.GetKeyValue(userAnimeKeyList[k])).ToLocalChecked());
 			}
-			Nan::Set(animeArray, index, singleAnimeObj);
+			Nan::Set(animeArray,index,singleAnimeObj);
 			index++;
 		}
 		Local<Object> userObj = Nan::New<v8::Object>();
-		FOR_(userKeyList, i)
+		FOR_(userKeyList,i)
 		{
-			Nan::Set(userObj, Nan::New(userKeyList[i]).ToLocalChecked(),
+			Nan::Set(userObj,Nan::New(userKeyList[i]).ToLocalChecked(),
 				Nan::New(userInfo.GetKeyValue(userKeyList[i])).ToLocalChecked());
 		}
-		Nan::Set(val, Nan::New("UserInfo").ToLocalChecked(), userObj);
-		Nan::Set(val, Nan::New("AnimeArray").ToLocalChecked(), animeArray);
+		Nan::Set(val,Nan::New("UserInfo").ToLocalChecked(),userObj);
+		Nan::Set(val,Nan::New("AnimeArray").ToLocalChecked(),animeArray);
+
+		return val;
+	}
+
+	v8::Local<v8::Object> UserInfoToV8(ChiikaApi::Root* root_)
+	{
+		Local<Object> val = Nan::New<v8::Object>();
+		UserInfo userInfo = root_->GetUser();
+		
+
+
+		std::vector<const char*> userKeyList =
+		{
+			kUserId,kUserName,kUserWatching,kUserCompleted,kUserOnhold,kUserDropped,kUserPtw,kUserDaysSpentWatching,
+			kUserReading,kUserPtr,kUserDaysSpentReading
+		};
+		Local<Object> userObj = Nan::New<v8::Object>();
+
+		FOR_(userKeyList,i)
+		{
+			Nan::Set(userObj,Nan::New(userKeyList[i]).ToLocalChecked(),
+				Nan::New(userInfo.GetKeyValue(userKeyList[i])).ToLocalChecked());
+		}
+		Nan::Set(val,Nan::New("UserInfo").ToLocalChecked(),userObj);
 
 		return val;
 	}

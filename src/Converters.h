@@ -25,7 +25,8 @@
 //----------------------------------------------------------------------------
 namespace Converters
 {
-	v8::Local<v8::Object> AnimeListToV8Value(ChiikaApi::Root* root);
+	v8::Local<v8::Object> AnimeListToV8(ChiikaApi::Root* root);
+	v8::Local<v8::Object> UserInfoToV8(ChiikaApi::Root* root);
 }
 
 

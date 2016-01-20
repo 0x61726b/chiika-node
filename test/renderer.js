@@ -17,13 +17,14 @@ var root = new Chiika.Root({
 var request = new Chiika.Request();
 var database = new Chiika.Database();
 
-console.log("Hello");
-console.log(database.AnimeList);
+ console.log(database.User);
 
-//Verify
+// Verify
 // request.VerifyUser(
 //   function(success) {
 //      console.log(success);
 //     },function(err) {
 //       console.log(err);
 //     } );
+
+//Get MyAnimeList of user

@@ -31,6 +31,7 @@ using namespace v8;
 using namespace ChiikaApi;
 
 const char* kAnimeListProperty = "AnimeList";
+const char* kPropertyUserInfo = "User"; 
 
 DatabaseWrapper::DatabaseWrapper()
 {
@@ -53,6 +54,7 @@ void DatabaseWrapper::Init(Nan::ADDON_REGISTER_FUNCTION_ARGS_TYPE target, Chiika
 	v8::Local<v8::ObjectTemplate> inst = tpl->InstanceTemplate();
 
 	tpl->Set(DEFINE_PROPERTY(kAnimeListProperty, Nan::New<Object>()));
+	tpl->Set(DEFINE_PROPERTY(kPropertyUserInfo, Nan::New<Object>()));
 
 	Nan::SetNamedPropertyHandler(inst,
 		DatabaseWrapper::DatabaseGetter);
@@ -91,7 +93,13 @@ NAN_PROPERTY_GETTER(DatabaseWrapper::DatabaseGetter)
 
 	if (strcmp(prop, kAnimeListProperty) == 0)
 	{
-		v8::Local<v8::Value> val = Converters::AnimeListToV8Value(obj->root_);
+		v8::Local<v8::Value> val = Converters::AnimeListToV8(obj->root_);
+		info.GetReturnValue().Set(val);
+	}
+
+	if(strcmp(prop,kPropertyUserInfo) == 0)
+	{
+		v8::Local<v8::Value> val = Converters::UserInfoToV8(obj->root_);
 		info.GetReturnValue().Set(val);
 	}
 

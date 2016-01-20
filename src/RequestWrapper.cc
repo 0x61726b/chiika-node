@@ -164,7 +164,7 @@ PersistentValue RequestWrapper::ParseRequest(const std::string& r, ChiikaApi::Re
 	if (r == root_->GetKey(ChiikaApi::RequestApiValues::REQUEST_GETMYANIMELIST_SUCCESS))
 	{
 		Local<Object> val = Nan::New<v8::Object>();
-		val = Converters::AnimeListToV8Value(root_);
+		val = Converters::AnimeListToV8(root_);
 
 		PersistentValue persistent;
 		persistent.Reset(val);
