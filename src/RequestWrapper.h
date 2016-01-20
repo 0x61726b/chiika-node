@@ -13,43 +13,54 @@
 //with this program; if not, write to the Free Software Foundation, Inc.,
 //51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.*/
 //
-//	Date: 17.1.2016
+//	Date: 20.1.2016
 //	authors: arkenthera
 //	Description:
 //----------------------------------------------------------------------------
-#ifndef __ApiWrapper_h__
-#define __ApiWrapper_h__
+#ifndef __RequestWrapper_h__
+#define __RequestWrapper_h__
 //----------------------------------------------------------------------------
 #include <nan.h>
 #include "Root\Root.h"
+#include "Request\RequestInterface.h"
 #include "Common.h"
 //----------------------------------------------------------------------------
-
-
-class RootWrapper : public Nan::ObjectWrap
+class RequestWrapper : public Nan::ObjectWrap, public ChiikaApi::RequestListener
 {
 public:
-	static void Init(Nan::ADDON_REGISTER_FUNCTION_ARGS_TYPE target,ChiikaApi::Root* r);
+	static void Init(Nan::ADDON_REGISTER_FUNCTION_ARGS_TYPE target, ChiikaApi::Root* r);
 
-public:
-	explicit RootWrapper();
-	~RootWrapper();
+	explicit RequestWrapper();
+	~RequestWrapper();
 
-	static NAN_METHOD(ApiVersion);
 	static NAN_METHOD(New);
-	
+
+	//ChiikaApi Request binds
+	static NAN_METHOD(VerifyUser);
+	static NAN_METHOD(GetMyAnimelist);
+	static NAN_METHOD(TestoDicto);
 	static Nan::Persistent<v8::Function> constructor;
 
-	static NAN_PROPERTY_GETTER(RootGetter);
-
-	//RequestInterface
-
-
-	std::string version;
 	static ChiikaApi::Root* root_;
+	void OnSuccess(ChiikaApi::RequestInterface*);
+	void OnError(ChiikaApi::RequestInterface*);
+
+	PersistentValue ParseRequest(const std::string& r, ChiikaApi::RequestInterface*);
+
+	//http://i3.kym-cdn.com/photos/images/newsfeed/000/632/366/97a.jpg
+	typedef std::map<std::string,
+		std::pair<Nan::Persistent<v8::Object, v8::CopyablePersistentTraits<v8::Object>>,
+		Nan::Persistent<v8::Function, v8::CopyablePersistentTraits<v8::Function>> >> CallbackMap;
 
 
+	CallbackMap m_CallbackMap;
+
+
+
+	static void TaskOnMainThread(uv_async_t* req);
+
+	uv_async_t async;
+	uv_loop_t *loop;
 };
-
-
+//----------------------------------------------------------------------------
 #endif

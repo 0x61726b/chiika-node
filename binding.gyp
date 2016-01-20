@@ -4,9 +4,16 @@
             "target_name": "ChiikaNative",
             "cflags_cc": [ "-std=c++11" ],
             "sources": [
+                    "src/Common.h",
                     "src/Init.cc",
                     "src/ApiWrapper.h",
-                    "src/ApiWrapper.cc"
+                    "src/ApiWrapper.cc",
+					"src/RequestWrapper.h",
+					"src/RequestWrapper.cc",
+                    "src/DatabaseWrapper.h",
+                    "src/DatabaseWrapper.cc",
+                    "src/Converters.cc",
+                    "src/Converters.h"
             ],
             "cflags": [
                 "-std=c++11"
@@ -75,7 +82,7 @@
             },
             "include_dirs": [
                 "<!(node -e \"require('nan')\")",
-                "D:/Chiika/ChiikaApiGit/ChiikaApi/ChiikaAPI"
+                "../ChiikaApi/ChiikaAPI"
             ]
         }
     ]

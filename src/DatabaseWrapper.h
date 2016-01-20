@@ -13,43 +13,34 @@
 //with this program; if not, write to the Free Software Foundation, Inc.,
 //51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.*/
 //
-//	Date: 17.1.2016
+//	Date: 20.1.2016
 //	authors: arkenthera
 //	Description:
 //----------------------------------------------------------------------------
-#ifndef __ApiWrapper_h__
-#define __ApiWrapper_h__
+#ifndef __DatabaseWrapper_h__
+#define __DatabaseWrapper_h__
 //----------------------------------------------------------------------------
 #include <nan.h>
 #include "Root\Root.h"
-#include "Common.h"
 //----------------------------------------------------------------------------
-
-
-class RootWrapper : public Nan::ObjectWrap
+class DatabaseWrapper : public Nan::ObjectWrap
 {
 public:
-	static void Init(Nan::ADDON_REGISTER_FUNCTION_ARGS_TYPE target,ChiikaApi::Root* r);
+	static void Init(Nan::ADDON_REGISTER_FUNCTION_ARGS_TYPE target, ChiikaApi::Root* r);
 
 public:
-	explicit RootWrapper();
-	~RootWrapper();
+	explicit DatabaseWrapper();
+	~DatabaseWrapper();
 
-	static NAN_METHOD(ApiVersion);
 	static NAN_METHOD(New);
-	
+
+	static NAN_PROPERTY_GETTER(DatabaseGetter);
+
 	static Nan::Persistent<v8::Function> constructor;
 
-	static NAN_PROPERTY_GETTER(RootGetter);
-
-	//RequestInterface
-
-
-	std::string version;
 	static ChiikaApi::Root* root_;
-
-
 };
 
 
 #endif
+//----------------------------------------------------------------------------

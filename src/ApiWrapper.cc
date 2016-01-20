@@ -21,7 +21,8 @@
 #include "Root\Root.h"
 #include "Logging\LogManager.h"
 
-#include "Request\AccountVerify.h"
+#include "RequestWrapper.h"
+#include "DatabaseWrapper.h"
 
 Nan::Persistent<v8::Function> RootWrapper::constructor;
 ChiikaApi::Root* RootWrapper::root_;
@@ -46,11 +47,6 @@ using v8::ObjectTemplate;
 using v8::Context;
 using v8::Persistent;
 
-struct CallbackIteratorParams
-{
-	std::string Name;
-	Nan::Persistent<v8::Function,v8::CopyablePersistentTraits<v8::Function>> Callback;
-};
 
 
 void RootWrapper::Init(Nan::ADDON_REGISTER_FUNCTION_ARGS_TYPE target, ChiikaApi::Root* r)
@@ -62,14 +58,13 @@ void RootWrapper::Init(Nan::ADDON_REGISTER_FUNCTION_ARGS_TYPE target, ChiikaApi:
 
 	v8::Local<v8::ObjectTemplate> inst = tpl->InstanceTemplate();
 
-	Nan::SetPrototypeMethod(tpl, "verifyUser", RootWrapper::VerifyUser);
 
-	tpl->Set(DEFINE_PROPERTY(kArgsAppMode, Nan::New(false));
-	tpl->Set(DEFINE_PROPERTY(kArgsDebugMode, Nan::New(false));
+	tpl->Set(DEFINE_PROPERTY(kArgsAppMode, Nan::New(false)));
+	tpl->Set(DEFINE_PROPERTY(kArgsDebugMode, Nan::New(false)));
 
-	tpl->Set(DEFINE_PROPERTY(kArgsUserName, Nan::New("Not_Defined").ToLocalChecked());
-	tpl->Set(DEFINE_PROPERTY(kArgsPass, Nan::New("Not_Defined").ToLocalChecked());
-	tpl->Set(DEFINE_PROPERTY(kArgsModulePath, Nan::New("Not_Defined").ToLocalChecked());
+	tpl->Set(DEFINE_PROPERTY(kArgsUserName, Nan::New("Not_Defined").ToLocalChecked()));
+	tpl->Set(DEFINE_PROPERTY(kArgsPass, Nan::New("Not_Defined").ToLocalChecked()));
+	tpl->Set(DEFINE_PROPERTY(kArgsModulePath, Nan::New("Not_Defined").ToLocalChecked()));
 
 	Nan::SetNamedPropertyHandler(inst,
 		RootWrapper::RootGetter);
@@ -77,7 +72,10 @@ void RootWrapper::Init(Nan::ADDON_REGISTER_FUNCTION_ARGS_TYPE target, ChiikaApi:
 	constructor.Reset(Nan::GetFunction(tpl).ToLocalChecked());
 	Nan::Set(target, Nan::New("Root").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
 
+	
 
+	RequestWrapper::Init(target,r);
+	DatabaseWrapper::Init(target, r);
 }
 void Omg(uv_async_t*)
 {
@@ -85,96 +83,10 @@ void Omg(uv_async_t*)
 }
 RootWrapper::RootWrapper()
 {
-	loop = uv_default_loop();
-	uv_async_init(loop, &async, &RootWrapper::Wtf);
+
 }
 RootWrapper::~RootWrapper()
 {
-}
-
-void RootWrapper::OnSuccess(ChiikaApi::RequestInterface* r)
-{
-	root_->m_pLogManager->LogMessage("Success " + r->GetName());
-
-	CallbackMap::iterator It = m_CallbackMap.find(r->GetName() + "Success");
-
-	if(It != m_CallbackMap.end())
-	{
-		CallbackIteratorParams* callback = new CallbackIteratorParams;
-		callback->Callback = It->second;
-		callback->Name = It->first;
-		async.data = reinterpret_cast<void*>(callback);
-
-		uv_async_send(&async);
-	}
-	
-}
-void RootWrapper::Wtf(uv_async_t* req)
-{
-	CallbackIteratorParams* params = reinterpret_cast<CallbackIteratorParams*>(req->data);
-
-	if(params)
-	{
-		Local<Function> local = Nan::New(params->Callback);
-		local->Call(Null(Isolate::GetCurrent()),0,0);
-	}
-	
-	
-	
-	
-	
-}
-
-void RootWrapper::OnError(ChiikaApi::RequestInterface* r)
-{
-	root_->m_pLogManager->LogMessage("Error");
-
-	//CallbackMap::iterator It = m_CallbackMap.find(r->GetName() + "Error");
-
-	//if (It != m_CallbackMap.end())
-	//{
-	//	Local<Function> callback = It->second.first;
-	//	v8::Isolate*	isolate = It->second.second;
-
-	//	v8::Locker lock(isolate);
-	//	v8::Isolate::Scope isolateScope(isolate);
-	//	v8::HandleScope scope(isolate);
-
-	//	Local<v8::Array> returnArray = v8::Array::New(isolate, 1);
-	//	const unsigned argc = 1;
-	//	Local<Value> argv[argc] = {};
-	//	callback->Call(Null(isolate), 0, 0);
-	//}
-}
-
-NAN_METHOD(RootWrapper::VerifyUser)
-{
-	RootWrapper *obj = new RootWrapper;
-	obj->Wrap(info.This());
-
-	v8::Isolate* isolate = info.GetIsolate();
-	
-
-	
-	ChiikaApi::AccountVerifyRequest* request = new ChiikaApi::AccountVerifyRequest;
-	request->Initialize();
-	request->SetOptions();
-	request->AddListener(obj);
-
-	Nan::Persistent<Function,v8::CopyablePersistentTraits<Function>> callback;
-	
-	callback.Reset((info[0].As<Function>()));
-
-
-
-
-	//Return
-	obj->m_CallbackMap.insert(std::make_pair("VerifyUserSuccess",callback));
-	/*obj->m_CallbackMap.insert(std::make_pair("VerifyUserError", std::make_pair(callback, isolate)));*/
-
-	//v8::Locker lock(isolate);
-	//obj->OnSuccess(request);
-	ChiikaApi::Root::Get()->PostRequest(request);
 }
 
 NAN_METHOD(RootWrapper::New)
@@ -220,7 +132,8 @@ NAN_METHOD(RootWrapper::New)
 
 
 	}
-	else {
+	else
+	{
 		const int argc = 1;
 		v8::Local<v8::Value> argv[argc] = { info[0] };
 		v8::Local<v8::Function> cons = Nan::New(constructor);

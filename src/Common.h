@@ -17,39 +17,15 @@
 //	authors: arkenthera
 //	Description:
 //----------------------------------------------------------------------------
-#ifndef __ApiWrapper_h__
-#define __ApiWrapper_h__
+#ifndef __Common_h__
+#define __Common_h__
 //----------------------------------------------------------------------------
 #include <nan.h>
-#include "Root\Root.h"
-#include "Common.h"
 //----------------------------------------------------------------------------
-
-
-class RootWrapper : public Nan::ObjectWrap
-{
-public:
-	static void Init(Nan::ADDON_REGISTER_FUNCTION_ARGS_TYPE target,ChiikaApi::Root* r);
-
-public:
-	explicit RootWrapper();
-	~RootWrapper();
-
-	static NAN_METHOD(ApiVersion);
-	static NAN_METHOD(New);
-	
-	static Nan::Persistent<v8::Function> constructor;
-
-	static NAN_PROPERTY_GETTER(RootGetter);
-
-	//RequestInterface
-
-
-	std::string version;
-	static ChiikaApi::Root* root_;
-
-
-};
-
-
+#define V8Value v8::Local<v8::Value>
+#define DEFINE_PROPERTY(name,value) v8::String::NewFromUtf8(v8::Isolate::GetCurrent(),name),value
+#define PersistentValue Nan::Persistent<v8::Value, v8::CopyablePersistentTraits<v8::Value>>
+#define PersistentObject Nan::Persistent<v8::Object, v8::CopyablePersistentTraits<v8::Object>>
+#define PersistentFunction Nan::Persistent<v8::Function, v8::CopyablePersistentTraits<v8::Function>>
+//----------------------------------------------------------------------------
 #endif

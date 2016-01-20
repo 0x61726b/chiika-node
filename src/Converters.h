@@ -13,43 +13,22 @@
 //with this program; if not, write to the Free Software Foundation, Inc.,
 //51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.*/
 //
-//	Date: 17.1.2016
+//	Date: 20.1.2016
 //	authors: arkenthera
 //	Description:
 //----------------------------------------------------------------------------
-#ifndef __ApiWrapper_h__
-#define __ApiWrapper_h__
-//----------------------------------------------------------------------------
 #include <nan.h>
 #include "Root\Root.h"
-#include "Common.h"
 //----------------------------------------------------------------------------
-
-
-class RootWrapper : public Nan::ObjectWrap
+#ifndef __Converters_h__
+#define __Converters_h__
+//----------------------------------------------------------------------------
+namespace Converters
 {
-public:
-	static void Init(Nan::ADDON_REGISTER_FUNCTION_ARGS_TYPE target,ChiikaApi::Root* r);
-
-public:
-	explicit RootWrapper();
-	~RootWrapper();
-
-	static NAN_METHOD(ApiVersion);
-	static NAN_METHOD(New);
-	
-	static Nan::Persistent<v8::Function> constructor;
-
-	static NAN_PROPERTY_GETTER(RootGetter);
-
-	//RequestInterface
+	v8::Local<v8::Object> AnimeListToV8Value(ChiikaApi::Root* root);
+}
 
 
-	std::string version;
-	static ChiikaApi::Root* root_;
-
-
-};
-
-
+//----------------------------------------------------------------------------
 #endif
+
