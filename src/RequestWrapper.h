@@ -38,6 +38,8 @@ public:
 	//ChiikaApi Request binds
 	static NAN_METHOD(VerifyUser);
 	static NAN_METHOD(GetMyAnimelist);
+	static NAN_METHOD(GetMyMangalist);
+
 	static NAN_METHOD(TestoDicto);
 	static Nan::Persistent<v8::Function> constructor;
 

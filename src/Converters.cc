@@ -30,24 +30,12 @@ namespace Converters
 		UserInfo userInfo = root_->GetUser();
 		UserAnimeList animeList = root_->GetUserAnimelist();
 
+		KeyList animeKeyList;
+		GetAnimeKeys(animeKeyList);
+		
+		KeyList userAnimeKeyList;
+		GetUserAnimeEntryKeys(userAnimeKeyList);
 
-		std::vector<const char*> userKeyList =
-		{
-			kUserId,kUserName,kUserWatching,kUserCompleted,kUserOnhold,kUserDropped,kUserPtw,kUserDaysSpentWatching,
-			kUserReading,kUserPtr,kUserDaysSpentReading
-		};
-
-		std::vector<const char*> animeKeyList =
-		{
-			kSeriesAnimedbId,kSeriesTitle,kSeriesSynonyms,kSeriesEpisodes,kSeriesType,kSeriesStatus,
-			kSeriesStart,kSeriesEnd,kSeriesImage
-		};
-
-		std::vector<const char*> userAnimeKeyList =
-		{
-			kMyId,kMyWatchedEpisodes,kMyStartDate,kMyFinishDate,kMyScore,kMyStatus,
-			kMyRewatching,kMyRewatchingEp,kMyLastUpdated
-		};
 		UserAnimeList::iterator It = animeList.begin();
 		Local<Array> animeArray = Nan::New<v8::Array>((int)animeList.size());
 		int index = 0;
@@ -76,14 +64,56 @@ namespace Converters
 			Nan::Set(animeArray,index,singleAnimeObj);
 			index++;
 		}
-		Local<Object> userObj = Nan::New<v8::Object>();
-		FOR_(userKeyList,i)
-		{
-			Nan::Set(userObj,Nan::New(userKeyList[i]).ToLocalChecked(),
-				Nan::New(userInfo.GetKeyValue(userKeyList[i])).ToLocalChecked());
-		}
-		Nan::Set(val,Nan::New("UserInfo").ToLocalChecked(),userObj);
+
+		Nan::Set(val, Nan::New("UserInfo").ToLocalChecked(), UserInfoToV8(root_));
 		Nan::Set(val,Nan::New("AnimeArray").ToLocalChecked(),animeArray);
+
+		return val;
+	}
+
+	v8::Local<v8::Object> MangaListToV8(ChiikaApi::Root* root_)
+	{
+		Local<Object> val = Nan::New<v8::Object>();
+		UserInfo userInfo = root_->GetUser();
+		UserMangaList animeList = root_->GetUserMangalist();
+
+		KeyList mangaKeyList;
+		GetMangaKeys(mangaKeyList);
+
+		KeyList userMangaKeyList;
+		GetUserMangaEntryKeys(userMangaKeyList);
+
+		UserMangaList::iterator It = animeList.begin();
+		Local<Array> mangaArray = Nan::New<v8::Array>((int)animeList.size());
+		int index = 0;
+		for (It; It != animeList.end(); ++It)
+		{
+			Local<Object> singleAnimeObj = Nan::New<v8::Object>();
+			Local<Object> animeObj = Nan::New<v8::Object>();
+			UserMangaEntry userManga = It->second;
+
+			Manga manga = userManga.Manga;
+
+			FOR_(mangaKeyList, j)
+			{
+				Nan::Set(animeObj,
+					Nan::New(mangaKeyList[j]).ToLocalChecked(),
+					Nan::New(manga.GetKeyValue(mangaKeyList[j])).ToLocalChecked());
+			}
+			Nan::Set(singleAnimeObj, Nan::New("anime").ToLocalChecked(), animeObj);
+
+			FOR_(userMangaKeyList, k)
+			{
+				Nan::Set(singleAnimeObj,
+					Nan::New(userMangaKeyList[k]).ToLocalChecked(),
+					Nan::New(userManga.GetKeyValue(userMangaKeyList[k])).ToLocalChecked());
+			}
+			Nan::Set(mangaArray, index, singleAnimeObj);
+			index++;
+		}
+
+		Nan::Set(val, Nan::New("UserInfo").ToLocalChecked(), UserInfoToV8(root_));
+		Nan::Set(val, Nan::New("AnimeArray").ToLocalChecked(), mangaArray);
 
 		return val;
 	}
@@ -94,21 +124,48 @@ namespace Converters
 		UserInfo userInfo = root_->GetUser();
 		
 
+		KeyList userInfoKeys;
+		GetUserInfoKeys(userInfoKeys);
 
-		std::vector<const char*> userKeyList =
-		{
-			kUserId,kUserName,kUserWatching,kUserCompleted,kUserOnhold,kUserDropped,kUserPtw,kUserDaysSpentWatching,
-			kUserReading,kUserPtr,kUserDaysSpentReading
-		};
+		userInfoKeys.erase(std::find(userInfoKeys.begin(), userInfoKeys.end(), kPass));
+
+		KeyList mangaKeys;
+		GetUserInfoMangaKeys(mangaKeys);
+
+		KeyList animeKeys;
+		GetUserInfoAnimeKeys(animeKeys);
+
+
 		Local<Object> userObj = Nan::New<v8::Object>();
 
-		FOR_(userKeyList,i)
+		FOR_(userInfoKeys, i)
 		{
-			Nan::Set(userObj,Nan::New(userKeyList[i]).ToLocalChecked(),
-				Nan::New(userInfo.GetKeyValue(userKeyList[i])).ToLocalChecked());
+			Nan::Set(userObj, Nan::New(userInfoKeys[i]).ToLocalChecked(),
+				Nan::New(userInfo.GetKeyValue(userInfoKeys[i])).ToLocalChecked());
 		}
-		Nan::Set(val,Nan::New("UserInfo").ToLocalChecked(),userObj);
+		Nan::Set(val, Nan::New("UserInfo").ToLocalChecked(), userObj);
+
+		Local<Object> animeInfo = Nan::New<v8::Object>();
+		FOR_(animeKeys, i)
+		{
+			Nan::Set(animeInfo, Nan::New(animeKeys[i]).ToLocalChecked(),
+				Nan::New(userInfo.Anime.GetKeyValue(animeKeys[i])).ToLocalChecked());
+		}
+		Nan::Set(val, Nan::New("AnimeInfo").ToLocalChecked(), animeInfo);
+
+		Local<Object> mangaInfo = Nan::New<v8::Object>();
+		FOR_(mangaKeys, i)
+		{
+			Nan::Set(mangaInfo, Nan::New(mangaKeys[i]).ToLocalChecked(),
+				Nan::New(userInfo.Manga.GetKeyValue(mangaKeys[i])).ToLocalChecked());
+		}
+		Nan::Set(val, Nan::New("MangaInfo").ToLocalChecked(), mangaInfo);
 
 		return val;
+	}
+	std::string ObjectToString(v8::Local<Value> value)
+	{
+		String::Utf8Value utf8_value(value);
+		return std::string(*utf8_value);
 	}
 }

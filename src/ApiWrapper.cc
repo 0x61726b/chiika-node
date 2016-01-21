@@ -23,6 +23,7 @@
 
 #include "RequestWrapper.h"
 #include "DatabaseWrapper.h"
+#include "Converters.h"
 
 Nan::Persistent<v8::Function> RootWrapper::constructor;
 ChiikaApi::Root* RootWrapper::root_;
@@ -145,27 +146,29 @@ NAN_PROPERTY_GETTER(RootWrapper::RootGetter)
 {
 	RootWrapper* obj = Nan::ObjectWrap::Unwrap<RootWrapper>(info.This());
 
-	const char* prop = *v8::String::Utf8Value(property);
+	std::string prop = Converters::ObjectToString(property);
 
-	if (strcmp(prop, kArgsAppMode) == 0)
+	
+
+	if (prop == kArgsAppMode)
 	{
 		bool appMode = obj->root_->GetRootOptions()->appMode;
 		info.GetReturnValue().Set(Nan::New(appMode));
 	}
-	if (strcmp(prop, kArgsDebugMode) == 0)
+	if (prop == kArgsDebugMode)
 	{
 		bool debugMode = obj->root_->GetRootOptions()->debugMode;
 		info.GetReturnValue().Set(Nan::New(debugMode));
 	}
-	if (strcmp(prop, kArgsUserName) == 0)
+	if (prop == kArgsUserName)
 	{
 		info.GetReturnValue().Set(Nan::New("nope").ToLocalChecked());
 	}
-	if (strcmp(prop, kArgsPass) == 0)
+	if (prop == kArgsPass)
 	{
 		info.GetReturnValue().Set(Nan::New("nope").ToLocalChecked());
 	}
-	if (strcmp(prop, kArgsModulePath) == 0)
+	if (prop == kArgsModulePath)
 	{
 		std::string module = obj->root_->GetRootOptions()->modulePath;
 		info.GetReturnValue().Set(Nan::New(module.c_str()).ToLocalChecked());

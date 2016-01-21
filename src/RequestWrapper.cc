@@ -70,6 +70,7 @@ void RequestWrapper::Init(Nan::ADDON_REGISTER_FUNCTION_ARGS_TYPE target, ChiikaA
 	// ~
 	Nan::SetPrototypeMethod(tpl, "VerifyUser", RequestWrapper::VerifyUser);
 	Nan::SetPrototypeMethod(tpl, "GetMyAnimelist", RequestWrapper::GetMyAnimelist);
+	Nan::SetPrototypeMethod(tpl, "GetMyMangalist", RequestWrapper::GetMyMangalist);
 	Nan::SetPrototypeMethod(tpl, "testo", RequestWrapper::TestoDicto);
 
 	constructor.Reset(Nan::GetFunction(tpl).ToLocalChecked());
@@ -172,6 +173,18 @@ PersistentValue RequestWrapper::ParseRequest(const std::string& r, ChiikaApi::Re
 		return persistent;
 	}
 
+	//GetMyMangalist
+	if (r == root_->GetKey(ChiikaApi::RequestApiValues::REQUEST_GETMYMANGALIST_SUCCESS))
+	{
+		Local<Object> val = Nan::New<v8::Object>();
+		val = Converters::MangaListToV8(root_);
+
+		PersistentValue persistent;
+		persistent.Reset(val);
+
+		return persistent;
+	}
+
 	//Handling of all failed requests
 	if (r.find("Error") > 0)
 	{
@@ -214,13 +227,13 @@ NAN_METHOD(RequestWrapper::VerifyUser)
 
 
 	//Set up callbacks
-	Nan::Persistent<Function, v8::CopyablePersistentTraits<Function>> callbackSuccess;
+	PersistentFunction callbackSuccess;
 	callbackSuccess.Reset((info[0].As<Function>()));
 
-	Nan::Persistent<Function, v8::CopyablePersistentTraits<Function>> callbackError;
+	PersistentFunction callbackError;
 	callbackError.Reset((info[1].As<Function>()));
 
-	Nan::Persistent<Object, v8::CopyablePersistentTraits<Object>> caller;
+	PersistentObject caller;
 	caller.Reset(info.This());
 
 	obj->m_CallbackMap.insert(std::make_pair(root_->GetKey(RequestApiValues::REQUEST_VERIFY_SUCCESS),
@@ -243,13 +256,13 @@ NAN_METHOD(RequestWrapper::GetMyAnimelist)
 
 
 	//Set up callbacks
-	Nan::Persistent<Function, v8::CopyablePersistentTraits<Function>> callbackSuccess;
+	PersistentFunction callbackSuccess;
 	callbackSuccess.Reset((info[0].As<Function>()));
 
-	Nan::Persistent<Function, v8::CopyablePersistentTraits<Function>> callbackError;
+	PersistentFunction callbackError;
 	callbackError.Reset((info[1].As<Function>()));
 
-	Nan::Persistent<Object, v8::CopyablePersistentTraits<Object>> caller;
+	PersistentObject caller;
 	caller.Reset(info.This());
 
 	obj->m_CallbackMap.insert(std::make_pair(root_->GetKey(RequestApiValues::REQUEST_GETMYANIMELIST_SUCCESS),
@@ -260,6 +273,35 @@ NAN_METHOD(RequestWrapper::GetMyAnimelist)
 
 	//Post the request
 	ChiikaApi::Root::Get()->GetRequestManager()->GetMyAnimelist(obj);
+}
+
+NAN_METHOD(RequestWrapper::GetMyMangalist)
+{
+	RequestWrapper *obj = new RequestWrapper;
+	obj->Wrap(info.This());
+
+	v8::Isolate* isolate = info.GetIsolate();
+
+
+
+	//Set up callbacks
+	PersistentFunction callbackSuccess;
+	callbackSuccess.Reset((info[0].As<Function>()));
+
+	PersistentFunction callbackError;
+	callbackError.Reset((info[1].As<Function>()));
+
+	PersistentObject caller;
+	caller.Reset(info.This());
+
+	obj->m_CallbackMap.insert(std::make_pair(root_->GetKey(RequestApiValues::REQUEST_GETMYMANGALIST_SUCCESS),
+		std::make_pair(caller, callbackSuccess)));
+	obj->m_CallbackMap.insert(std::make_pair(root_->GetKey(RequestApiValues::REQUEST_GETMYMANGALIST_ERROR),
+		std::make_pair(caller, callbackError)));
+
+
+	//Post the request
+	ChiikaApi::Root::Get()->GetRequestManager()->GetMyMangalist(obj);
 }
 NAN_METHOD(RequestWrapper::New)
 {

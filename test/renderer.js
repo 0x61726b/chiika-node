@@ -17,7 +17,47 @@ var root = new Chiika.Root({
 var request = new Chiika.Request();
 var database = new Chiika.Database();
 
- console.log(database.User);
+ function getMyAnimelist()
+ {
+   request.GetMyAnimelist(
+     function(success) {
+        console.log(success);
+       },function(err) {
+         console.log(err);
+       } );
+ }
+
+ function getMyMangalist()
+ {
+   request.GetMyMangalist(
+     function(success) {
+        console.log(success);
+       },function(err) {
+         console.log(err);
+       } );
+ }
+
+ function verifyUser()
+ {
+   request.VerifyUser(
+     function(success) {
+        console.log(success);
+       },function(err) {
+         console.log(err);
+       } );
+ }
+ function getAnimelistLocal()
+ {
+   console.log(database.AnimeList);
+ }
+ function getMangalistLocal()
+ {
+   console.log(database.Mangalist);
+ }
+ function getUserLocal()
+ {
+   console.log(database.User);
+ }
 
 // Verify
 // request.VerifyUser(

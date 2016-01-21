@@ -5,10 +5,18 @@
     <title>Hello World!</title>
   </head>
   <body>
-    <script src="./renderer.js"></script>
+
     <h1>Hello World!</h1>
     We are using node <script>document.write(process.versions.node)</script>,
     Chrome <script>document.write(process.versions.chrome)</script>,
     and Electron <script>document.write(process.versions.electron)</script>.
+    <br />
+    <a href="#" onclick="getMyAnimelist()">Get My Animelist</a> <br />
+    <a href="#" onclick="getMyMangalist()">Get My Mangalist</a> <br />
+    <a href="#" onclick="getAnimelistLocal()">Get Animelist Local</a> <br />
+    <a href="#" onclick="getMangalistLocal()">Get Mangalist Local</a> <br />
+    <a href="#" onclick="verifyUser()">Verify User</a> <br />
+    <a href="#" onclick="getUserLocal()">Get User</a> <br />
   </body>
+  <script src="./renderer.js"></script>
 </html>

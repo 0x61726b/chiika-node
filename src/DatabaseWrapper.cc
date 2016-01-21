@@ -30,7 +30,8 @@ ChiikaApi::Root* DatabaseWrapper::root_;
 using namespace v8;
 using namespace ChiikaApi;
 
-const char* kAnimeListProperty = "AnimeList";
+const char* kAnimeListProperty = "Animelist";
+const char* kPropertyMangaList = "Mangalist";
 const char* kPropertyUserInfo = "User"; 
 
 DatabaseWrapper::DatabaseWrapper()
@@ -55,6 +56,7 @@ void DatabaseWrapper::Init(Nan::ADDON_REGISTER_FUNCTION_ARGS_TYPE target, Chiika
 
 	tpl->Set(DEFINE_PROPERTY(kAnimeListProperty, Nan::New<Object>()));
 	tpl->Set(DEFINE_PROPERTY(kPropertyUserInfo, Nan::New<Object>()));
+	tpl->Set(DEFINE_PROPERTY(kPropertyMangaList, Nan::New<Object>()));
 
 	Nan::SetNamedPropertyHandler(inst,
 		DatabaseWrapper::DatabaseGetter);
@@ -89,17 +91,22 @@ NAN_PROPERTY_GETTER(DatabaseWrapper::DatabaseGetter)
 {
 	DatabaseWrapper* obj = Nan::ObjectWrap::Unwrap<DatabaseWrapper>(info.This());
 
-	const char* prop = *v8::String::Utf8Value(property);
+	std::string prop = Converters::ObjectToString(property);
 
-	if (strcmp(prop, kAnimeListProperty) == 0)
+	if (prop == kAnimeListProperty)
 	{
 		v8::Local<v8::Value> val = Converters::AnimeListToV8(obj->root_);
 		info.GetReturnValue().Set(val);
 	}
 
-	if(strcmp(prop,kPropertyUserInfo) == 0)
+	if(prop == kPropertyUserInfo)
 	{
 		v8::Local<v8::Value> val = Converters::UserInfoToV8(obj->root_);
+		info.GetReturnValue().Set(val);
+	}
+	if (prop == kPropertyMangaList)
+	{
+		v8::Local<v8::Value> val = Converters::MangaListToV8(obj->root_);
 		info.GetReturnValue().Set(val);
 	}
 
