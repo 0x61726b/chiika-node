@@ -34,6 +34,9 @@ const char* kAnimeListProperty = "Animelist";
 const char* kPropertyMangaList = "Mangalist";
 const char* kPropertyUserInfo = "User"; 
 
+const char* kArgUsername = "userName";
+const char* kArgPass = "password";
+
 DatabaseWrapper::DatabaseWrapper()
 {
 
@@ -54,6 +57,8 @@ void DatabaseWrapper::Init(Nan::ADDON_REGISTER_FUNCTION_ARGS_TYPE target, Chiika
 
 	v8::Local<v8::ObjectTemplate> inst = tpl->InstanceTemplate();
 
+	Nan::SetPrototypeMethod(tpl, "SetUser", DatabaseWrapper::SetMalUser);
+
 	tpl->Set(DEFINE_PROPERTY(kAnimeListProperty, Nan::New<Object>()));
 	tpl->Set(DEFINE_PROPERTY(kPropertyUserInfo, Nan::New<Object>()));
 	tpl->Set(DEFINE_PROPERTY(kPropertyMangaList, Nan::New<Object>()));
@@ -66,6 +71,29 @@ void DatabaseWrapper::Init(Nan::ADDON_REGISTER_FUNCTION_ARGS_TYPE target, Chiika
 	Nan::Set(target, Nan::New("Database").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
 
 
+}
+
+NAN_METHOD(DatabaseWrapper::SetMalUser)
+{
+	DatabaseWrapper *obj = new DatabaseWrapper;
+	obj->Wrap(info.This());
+	v8::Local<v8::Array> args = info[0].As<v8::Array>();
+
+	v8::Isolate* isolate = info.GetIsolate();
+
+	std::string userName = "";
+	std::string pass = "";
+
+	V8Value vUsername = args->Get(v8::String::NewFromUtf8(isolate, kArgUsername));
+	V8Value vPass	  = args->Get(v8::String::NewFromUtf8(isolate, kArgPass));
+
+	userName = std::string(*v8::String::Utf8Value(vUsername));
+	pass = std::string(*v8::String::Utf8Value(vPass));
+
+	root_->GetUser().SetKeyValue("user_name", userName);
+	root_->GetUser().SetKeyValue("Pass", pass);
+
+	info.GetReturnValue().Set(Nan::New(true));
 }
 
 NAN_METHOD(DatabaseWrapper::New)

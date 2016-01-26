@@ -34,6 +34,8 @@ public:
 
 	static NAN_METHOD(New);
 
+	static NAN_METHOD(SetMalUser);
+
 	static NAN_PROPERTY_GETTER(DatabaseGetter);
 
 	static Nan::Persistent<v8::Function> constructor;
