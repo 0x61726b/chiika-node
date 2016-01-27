@@ -100,7 +100,7 @@ namespace Converters
 					Nan::New(mangaKeyList[j]).ToLocalChecked(),
 					Nan::New(manga.GetKeyValue(mangaKeyList[j])).ToLocalChecked());
 			}
-			Nan::Set(singleAnimeObj, Nan::New("anime").ToLocalChecked(), animeObj);
+			Nan::Set(singleAnimeObj, Nan::New("manga").ToLocalChecked(), animeObj);
 
 			FOR_(userMangaKeyList, k)
 			{
@@ -113,7 +113,7 @@ namespace Converters
 		}
 
 		Nan::Set(val, Nan::New("UserInfo").ToLocalChecked(), UserInfoToV8(root_));
-		Nan::Set(val, Nan::New("AnimeArray").ToLocalChecked(), mangaArray);
+		Nan::Set(val, Nan::New("MangaArray").ToLocalChecked(), mangaArray);
 
 		return val;
 	}
