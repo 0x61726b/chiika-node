@@ -206,6 +206,16 @@ PersistentValue RequestWrapper::ParseRequest(const std::string& r,ChiikaApi::Req
 		return persistent;
 	}
 
+	if(r == "GetMalAjaxSuccess")
+	{
+		Local<Object> val = Nan::New<v8::Object>();
+		PersistentValue persistent;
+
+		persistent.Reset(val);
+
+		return persistent;
+	}
+
 	//Handling of all failed requests
 	if(r.find("Error") > 0)
 	{
@@ -263,9 +273,9 @@ NAN_METHOD(RequestWrapper::AnimeScrape)
 	PersistentObject caller;
 	caller.Reset(info.This());
 
-	obj->m_CallbackMap.insert(std::make_pair("GetAnimePageScrapeSuccess",
+	obj->m_CallbackMap.insert(std::make_pair("GetMalAjaxSuccess",
 		std::make_pair(caller,callbackSuccess)));
-	obj->m_CallbackMap.insert(std::make_pair("GetAnimePageScrapeError",
+	obj->m_CallbackMap.insert(std::make_pair("GetMalAjaxError",
 		std::make_pair(caller,callbackError)));
 
 	obj->m_CallbackMap.insert(std::make_pair("GetImageSuccess",
@@ -273,7 +283,7 @@ NAN_METHOD(RequestWrapper::AnimeScrape)
 	obj->m_CallbackMap.insert(std::make_pair("GetImageError",
 		std::make_pair(caller, callbackError)));
 
-	root_->AnimeScrape(obj,Id);
+	root_->MalAjax(obj,Id);
 }
 
 NAN_METHOD(RequestWrapper::VerifyUser)
