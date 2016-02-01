@@ -140,7 +140,7 @@ PersistentValue RequestWrapper::ParseRequest(const std::string& r,ChiikaApi::Req
 {
 	//Individual handling of success events
 	//UserVerify
-	if(r == root_->GetKey(ChiikaApi::RequestApiValues::REQUEST_VERIFY_SUCCESS))
+	if(r == "UserVerifySuccess")
 	{
 		Local<Object> val = Nan::New<v8::Object>();
 
@@ -163,7 +163,7 @@ PersistentValue RequestWrapper::ParseRequest(const std::string& r,ChiikaApi::Req
 	//
 
 	//GetMyAnimelist
-	if(r == root_->GetKey(ChiikaApi::RequestApiValues::REQUEST_GETMYANIMELIST_SUCCESS))
+	if (r == "GetMyAnimelistSuccess")
 	{
 		Local<Object> val = Nan::New<v8::Object>();
 		val = Converters::AnimeListToV8(root_);
@@ -175,7 +175,7 @@ PersistentValue RequestWrapper::ParseRequest(const std::string& r,ChiikaApi::Req
 	}
 
 	//GetMyMangalist
-	if(r == root_->GetKey(ChiikaApi::RequestApiValues::REQUEST_GETMYMANGALIST_SUCCESS))
+	if(r == "GetMyMangalistSuccess")
 	{
 		Local<Object> val = Nan::New<v8::Object>();
 		val = Converters::MangaListToV8(root_);
@@ -185,7 +185,7 @@ PersistentValue RequestWrapper::ParseRequest(const std::string& r,ChiikaApi::Req
 
 		return persistent;
 	}
-	if(r == root_->GetKey(ChiikaApi::RequestApiValues::REQUEST_IMAGEDOWNLOAD_SUCCESS))
+	if(r == "GetImageSuccess")
 	{
 		Local<Object> val = Nan::New<v8::Object>();
 		PersistentValue persistent;
@@ -195,7 +195,7 @@ PersistentValue RequestWrapper::ParseRequest(const std::string& r,ChiikaApi::Req
 
 	}
 
-	if(r == root_->GetKey(ChiikaApi::RequestApiValues::REQUEST_ANIMESCRAPE_SUCCESS))
+	if(r == "AnimeScrapeSuccess")
 	{
 		Local<Object> val = Nan::New<v8::Object>();
 		val = Converters::AnimeListToV8(root_);
@@ -263,10 +263,15 @@ NAN_METHOD(RequestWrapper::AnimeScrape)
 	PersistentObject caller;
 	caller.Reset(info.This());
 
-	obj->m_CallbackMap.insert(std::make_pair(root_->GetKey(RequestApiValues::REQUEST_ANIMESCRAPE_SUCCESS),
+	obj->m_CallbackMap.insert(std::make_pair("GetAnimePageScrapeSuccess",
 		std::make_pair(caller,callbackSuccess)));
-	obj->m_CallbackMap.insert(std::make_pair(root_->GetKey(RequestApiValues::REQUEST_ANIMESCRAPE_ERROR),
+	obj->m_CallbackMap.insert(std::make_pair("GetAnimePageScrapeError",
 		std::make_pair(caller,callbackError)));
+
+	obj->m_CallbackMap.insert(std::make_pair("GetImageSuccess",
+		std::make_pair(caller, callbackSuccess)));
+	obj->m_CallbackMap.insert(std::make_pair("GetImageError",
+		std::make_pair(caller, callbackError)));
 
 	root_->AnimeScrape(obj,Id);
 }
@@ -291,27 +296,27 @@ NAN_METHOD(RequestWrapper::VerifyUser)
 	caller.Reset(info.This());
 
 	//Verify
-	obj->m_CallbackMap.insert(std::make_pair(root_->GetKey(RequestApiValues::REQUEST_VERIFY_SUCCESS),
+	obj->m_CallbackMap.insert(std::make_pair("UserVerifySuccess",
 		std::make_pair(caller,callbackSuccess)));
-	obj->m_CallbackMap.insert(std::make_pair(root_->GetKey(RequestApiValues::REQUEST_VERIFY_ERROR),
+	obj->m_CallbackMap.insert(std::make_pair("UserVerifyError",
 		std::make_pair(caller,callbackError)));
 
 	//Animelist
-	obj->m_CallbackMap.insert(std::make_pair(root_->GetKey(RequestApiValues::REQUEST_GETMYANIMELIST_SUCCESS),
+	obj->m_CallbackMap.insert(std::make_pair("GetMyAnimelistSuccess",
 		std::make_pair(caller,callbackSuccess)));
-	obj->m_CallbackMap.insert(std::make_pair(root_->GetKey(RequestApiValues::REQUEST_GETMYANIMELIST_ERROR),
+	obj->m_CallbackMap.insert(std::make_pair("GetMyAnimelistError",
 		std::make_pair(caller,callbackError)));
 
 	//Mangalist
-	obj->m_CallbackMap.insert(std::make_pair(root_->GetKey(RequestApiValues::REQUEST_GETMYMANGALIST_SUCCESS),
+	obj->m_CallbackMap.insert(std::make_pair("GetMyMangalistSuccess",
 		std::make_pair(caller,callbackSuccess)));
-	obj->m_CallbackMap.insert(std::make_pair(root_->GetKey(RequestApiValues::REQUEST_GETMYMANGALIST_ERROR),
+	obj->m_CallbackMap.insert(std::make_pair("GetMyMangalistError",
 		std::make_pair(caller,callbackError)));
 
 	//Download Image
-	obj->m_CallbackMap.insert(std::make_pair(root_->GetKey(RequestApiValues::REQUEST_IMAGEDOWNLOAD_SUCCESS),
+	obj->m_CallbackMap.insert(std::make_pair("GetImageSuccess",
 		std::make_pair(caller,callbackSuccess)));
-	obj->m_CallbackMap.insert(std::make_pair(root_->GetKey(RequestApiValues::REQUEST_IMAGEDOWNLOAD_ERROR),
+	obj->m_CallbackMap.insert(std::make_pair("GetImageError",
 		std::make_pair(caller,callbackError)));
 
 	//Post the request

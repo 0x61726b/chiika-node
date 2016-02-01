@@ -113,7 +113,7 @@ namespace Converters
 				//~
 				//Studios
 				Local<Array> studioArray = Nan::New<v8::Array>();
-				std::vector<DictionaryBase> studioList = anime.Misc.Genres;
+				std::vector<DictionaryBase> studioList = anime.Misc.Studios;
 				FOR_(studioList,a)
 				{
 					Local<Object> singleStudio = Nan::New<v8::Object>();
@@ -125,7 +125,7 @@ namespace Converters
 					}
 					Nan::Set(studioArray,a,singleStudio);
 				}
-				Nan::Set(miscBaseObj,Nan::New(kStudios).ToLocalChecked(),charArray);
+				Nan::Set(miscBaseObj, Nan::New(kStudios).ToLocalChecked(), studioArray);
 				//~
 
 				Nan::Set(singleAnimeObj,Nan::New("Misc").ToLocalChecked(),miscBaseObj);
