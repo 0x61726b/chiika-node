@@ -18,7 +18,6 @@
 //	Description:
 //----------------------------------------------------------------------------
 #include "ApiWrapper.h"
-#include "Root\Root.h"
 #include "Logging\LogManager.h"
 
 #include "RequestWrapper.h"
@@ -118,15 +117,15 @@ NAN_METHOD(RootWrapper::New)
 		pass = std::string(*v8::String::Utf8Value(vPass));
 		modulePath = std::string(*v8::String::Utf8Value(vModulePath));
 
-		RootOptions* opts = new RootOptions;
-		opts->appMode = isAppMode;
-		opts->debugMode = isDebugMode;
-		opts->userName = strdup(userName.c_str());
-		opts->passWord = strdup(pass.c_str());
-		opts->modulePath = strdup(modulePath.c_str());
+		/*RootOptions opts;
+		opts.appMode = isAppMode;
+		opts.debugMode = isDebugMode;
+		opts.userName = userName;
+		opts.passWord = (pass);
+		opts.modulePath = (modulePath);*/
 
 
-		root_->Initialize(opts);
+		root_->Initialize(isAppMode,isDebugMode,strdup(userName.c_str()),strdup(pass.c_str()),strdup(modulePath.c_str()));
 
 
 		info.GetReturnValue().Set(info.This());
@@ -152,12 +151,12 @@ NAN_PROPERTY_GETTER(RootWrapper::RootGetter)
 
 	if (prop == kArgsAppMode)
 	{
-		bool appMode = obj->root_->GetRootOptions()->appMode;
+		bool appMode = obj->root_->GetRootOptions().appMode;
 		info.GetReturnValue().Set(Nan::New(appMode));
 	}
 	if (prop == kArgsDebugMode)
 	{
-		bool debugMode = obj->root_->GetRootOptions()->debugMode;
+		bool debugMode = obj->root_->GetRootOptions().debugMode;
 		info.GetReturnValue().Set(Nan::New(debugMode));
 	}
 	if (prop == kArgsUserName)
@@ -170,7 +169,7 @@ NAN_PROPERTY_GETTER(RootWrapper::RootGetter)
 	}
 	if (prop == kArgsModulePath)
 	{
-		std::string module = obj->root_->GetRootOptions()->modulePath;
+		std::string module = obj->root_->GetRootOptions().modulePath;
 		info.GetReturnValue().Set(Nan::New(module.c_str()).ToLocalChecked());
 	}
 }

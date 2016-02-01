@@ -46,7 +46,7 @@
                 "Debug": {
                     "msvs_settings": {
                         "VCCLCompilerTool": {
-                            "ExceptionHandling": "0",
+                            "ExceptionHandling": "1",
                             "AdditionalOptions": [
                                 "/MTd"
                             ]

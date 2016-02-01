@@ -27,45 +27,122 @@ namespace Converters
 	v8::Local<v8::Object> AnimeListToV8(ChiikaApi::Root* root_)
 	{
 		Local<Object> val = Nan::New<v8::Object>();
-		UserInfo userInfo = root_->GetUser();
+		UserInfo& userInfo = root_->GetUser();
 		UserAnimeList animeList = root_->GetUserAnimelist();
+		AnimeList miscAnimeList = root_->GetAnimelist();
 
 		KeyList animeKeyList;
 		GetAnimeKeys(animeKeyList);
-		
+
 		KeyList userAnimeKeyList;
 		GetUserAnimeEntryKeys(userAnimeKeyList);
 
+		KeyList animeMiscKeys;
+		GetAnimeMiscKeys(animeMiscKeys);
+
+		KeyList charactersKeys ={kCharacterId,kCharacterName};
+		KeyList studioKeys ={kStudioId,kStudioName};
+		KeyList genreKeys ={kGenre};
+
 		UserAnimeList::iterator It = animeList.begin();
+		AnimeList::iterator animelistIt = miscAnimeList.begin();
 		Local<Array> animeArray = Nan::New<v8::Array>((int)animeList.size());
 		int index = 0;
 		for(It; It != animeList.end(); ++It)
 		{
 			Local<Object> singleAnimeObj = Nan::New<v8::Object>();
 			Local<Object> animeObj = Nan::New<v8::Object>();
+
+			Local<Object> animeMiscObj = Nan::New<v8::Object>();
+			Local<Object> miscBaseObj = Nan::New<v8::Object>();
+
 			UserAnimeEntry userAnime = It->second;
 
-			Anime anime = userAnime.Anime;
+			AnimeList::iterator miscIt = miscAnimeList.find(userAnime.GetKeyValue(kSeriesAnimedbId));
+			
 
-			FOR_(animeKeyList,j)
+			if(miscIt != miscAnimeList.end())
 			{
-				Nan::Set(animeObj,
-					Nan::New(animeKeyList[j]).ToLocalChecked(),
-					Nan::New(anime.GetKeyValue(animeKeyList[j])).ToLocalChecked());
-			}
-			Nan::Set(singleAnimeObj,Nan::New("anime").ToLocalChecked(),animeObj);
+				Anime anime = miscIt->second;
+				FOR_(animeKeyList,j)
+				{
+					Nan::Set(animeObj,
+						Nan::New(animeKeyList[j]).ToLocalChecked(),
+						Nan::New(anime.GetKeyValue(animeKeyList[j])).ToLocalChecked());
+				}
 
-			FOR_(userAnimeKeyList,k)
-			{
-				Nan::Set(singleAnimeObj,
-					Nan::New(userAnimeKeyList[k]).ToLocalChecked(),
-					Nan::New(userAnime.GetKeyValue(userAnimeKeyList[k])).ToLocalChecked());
+
+				FOR_(animeMiscKeys,k)
+				{
+					Nan::Set(miscBaseObj,
+						Nan::New(animeMiscKeys[k]).ToLocalChecked(),
+						Nan::New(anime.Misc.GetKeyValue(animeMiscKeys[k])).ToLocalChecked());
+				}
+
+				//Characters
+				Local<Array> charArray = Nan::New<v8::Array>();
+				std::vector<DictionaryBase> charList = anime.Misc.Characters;
+				FOR_(charList,a)
+				{
+					Local<Object> singleCharacter = Nan::New<v8::Object>();
+					FOR_(charactersKeys,k)
+					{
+						Nan::Set(singleCharacter,
+							Nan::New(charactersKeys[k]).ToLocalChecked(),
+							Nan::New(charList[a].GetKeyValue(charactersKeys[k])).ToLocalChecked());
+					}
+					Nan::Set(charArray,a,singleCharacter);
+				}
+				Nan::Set(miscBaseObj,Nan::New(kCharacters).ToLocalChecked(),charArray);
+				//~
+				//Genres
+				Local<Array> genreArray = Nan::New<v8::Array>();
+				std::vector<DictionaryBase> genreList = anime.Misc.Genres;
+				FOR_(genreList,a)
+				{
+					Local<Object> singleGenre = Nan::New<v8::Object>();
+					FOR_(genreKeys,k)
+					{
+						Nan::Set(singleGenre,
+							Nan::New(genreKeys[k]).ToLocalChecked(),
+							Nan::New(genreList[a].GetKeyValue(genreKeys[k])).ToLocalChecked());
+					}
+					Nan::Set(genreArray,a,singleGenre);
+				}
+				Nan::Set(miscBaseObj,Nan::New(kGenres).ToLocalChecked(),genreArray);
+				//~
+				//Studios
+				Local<Array> studioArray = Nan::New<v8::Array>();
+				std::vector<DictionaryBase> studioList = anime.Misc.Genres;
+				FOR_(studioList,a)
+				{
+					Local<Object> singleStudio = Nan::New<v8::Object>();
+					FOR_(studioKeys,k)
+					{
+						Nan::Set(singleStudio,
+							Nan::New(studioKeys[k]).ToLocalChecked(),
+							Nan::New(studioList[a].GetKeyValue(studioKeys[k])).ToLocalChecked());
+					}
+					Nan::Set(studioArray,a,singleStudio);
+				}
+				Nan::Set(miscBaseObj,Nan::New(kStudios).ToLocalChecked(),charArray);
+				//~
+
+				Nan::Set(singleAnimeObj,Nan::New("Misc").ToLocalChecked(),miscBaseObj);
+				Nan::Set(singleAnimeObj,Nan::New("anime").ToLocalChecked(),animeObj);
+
+				FOR_(userAnimeKeyList,k)
+				{
+					Nan::Set(singleAnimeObj,
+						Nan::New(userAnimeKeyList[k]).ToLocalChecked(),
+						Nan::New(userAnime.GetKeyValue(userAnimeKeyList[k])).ToLocalChecked());
+				}
+				Nan::Set(animeArray,index,singleAnimeObj);
+				index++;
 			}
-			Nan::Set(animeArray,index,singleAnimeObj);
-			index++;
 		}
 
-		Nan::Set(val, Nan::New("UserInfo").ToLocalChecked(), UserInfoToV8(root_));
+		Nan::Set(val,Nan::New("UserInfo").ToLocalChecked(),UserInfoToV8(root_));
 		Nan::Set(val,Nan::New("AnimeArray").ToLocalChecked(),animeArray);
 
 		return val;
@@ -74,19 +151,19 @@ namespace Converters
 	v8::Local<v8::Object> MangaListToV8(ChiikaApi::Root* root_)
 	{
 		Local<Object> val = Nan::New<v8::Object>();
-		UserInfo userInfo = root_->GetUser();
+		UserInfo& userInfo = root_->GetUser();
 		UserMangaList animeList = root_->GetUserMangalist();
 
-		KeyList mangaKeyList;
-		GetMangaKeys(mangaKeyList);
+		std::vector<std::string> mangaKeyList
+			={kSeriesMangadbId,kSeriesTitle,kSeriesSynonyms,kSeriesChapters,kSeriesVolumes,kSeriesType,kSeriesStatus,kSeriesStart,kSeriesEnd,kSeriesImage};
 
-		KeyList userMangaKeyList;
-		GetUserMangaEntryKeys(userMangaKeyList);
+		std::vector<std::string> userMangaKeyList
+			={kMyId,kMyReadChapters,kMyReadVolumes,kMyRewatchingEp,kMyScore,kMyRereading,kMyRereadingChap,kMyStatus,kMyStartDate,kMyFinishDate,kMyLastUpdated};
 
 		UserMangaList::iterator It = animeList.begin();
 		Local<Array> mangaArray = Nan::New<v8::Array>((int)animeList.size());
 		int index = 0;
-		for (It; It != animeList.end(); ++It)
+		for(It; It != animeList.end(); ++It)
 		{
 			Local<Object> singleAnimeObj = Nan::New<v8::Object>();
 			Local<Object> animeObj = Nan::New<v8::Object>();
@@ -94,26 +171,26 @@ namespace Converters
 
 			Manga manga = userManga.Manga;
 
-			FOR_(mangaKeyList, j)
+			FOR_(mangaKeyList,j)
 			{
 				Nan::Set(animeObj,
 					Nan::New(mangaKeyList[j]).ToLocalChecked(),
 					Nan::New(manga.GetKeyValue(mangaKeyList[j])).ToLocalChecked());
 			}
-			Nan::Set(singleAnimeObj, Nan::New("manga").ToLocalChecked(), animeObj);
+			Nan::Set(singleAnimeObj,Nan::New("manga").ToLocalChecked(),animeObj);
 
-			FOR_(userMangaKeyList, k)
+			FOR_(userMangaKeyList,k)
 			{
 				Nan::Set(singleAnimeObj,
 					Nan::New(userMangaKeyList[k]).ToLocalChecked(),
 					Nan::New(userManga.GetKeyValue(userMangaKeyList[k])).ToLocalChecked());
 			}
-			Nan::Set(mangaArray, index, singleAnimeObj);
+			Nan::Set(mangaArray,index,singleAnimeObj);
 			index++;
 		}
 
-		Nan::Set(val, Nan::New("UserInfo").ToLocalChecked(), UserInfoToV8(root_));
-		Nan::Set(val, Nan::New("MangaArray").ToLocalChecked(), mangaArray);
+		Nan::Set(val,Nan::New("UserInfo").ToLocalChecked(),UserInfoToV8(root_));
+		Nan::Set(val,Nan::New("MangaArray").ToLocalChecked(),mangaArray);
 
 		return val;
 	}
@@ -121,45 +198,41 @@ namespace Converters
 	v8::Local<v8::Object> UserInfoToV8(ChiikaApi::Root* root_)
 	{
 		Local<Object> val = Nan::New<v8::Object>();
-		UserInfo userInfo = root_->GetUser();
-		
+		UserInfo& userInfo = root_->GetUser();
 
-		KeyList userInfoKeys;
-		GetUserInfoKeys(userInfoKeys);
 
-		userInfoKeys.erase(std::find(userInfoKeys.begin(), userInfoKeys.end(), kPass));
+		std::vector<std::string> userInfoKeys ={"user_id","user_name"};
 
-		KeyList mangaKeys;
-		GetUserInfoMangaKeys(mangaKeys);
+		std::vector<std::string> mangaKeys ={kUserReading,kUserCompleted,kUserOnhold,kUserDropped,kUserPtr,kUserDaysSpentReading};
 
-		KeyList animeKeys;
-		GetUserInfoAnimeKeys(animeKeys);
+		std::vector<std::string> animeKeys ={kUserWatching,kUserCompleted,kUserOnhold,kUserDropped,kUserPtw,kUserDaysSpentWatching};
+
 
 
 		Local<Object> userObj = Nan::New<v8::Object>();
 
-		FOR_(userInfoKeys, i)
+		FOR_(userInfoKeys,i)
 		{
-			Nan::Set(userObj, Nan::New(userInfoKeys[i]).ToLocalChecked(),
+			Nan::Set(userObj,Nan::New(userInfoKeys[i]).ToLocalChecked(),
 				Nan::New(userInfo.GetKeyValue(userInfoKeys[i])).ToLocalChecked());
 		}
-		Nan::Set(val, Nan::New("UserInfo").ToLocalChecked(), userObj);
+		Nan::Set(val,Nan::New("UserInfo").ToLocalChecked(),userObj);
 
 		Local<Object> animeInfo = Nan::New<v8::Object>();
-		FOR_(animeKeys, i)
+		FOR_(animeKeys,i)
 		{
-			Nan::Set(animeInfo, Nan::New(animeKeys[i]).ToLocalChecked(),
+			Nan::Set(animeInfo,Nan::New(animeKeys[i]).ToLocalChecked(),
 				Nan::New(userInfo.Anime.GetKeyValue(animeKeys[i])).ToLocalChecked());
 		}
-		Nan::Set(val, Nan::New("AnimeInfo").ToLocalChecked(), animeInfo);
+		Nan::Set(val,Nan::New("AnimeInfo").ToLocalChecked(),animeInfo);
 
 		Local<Object> mangaInfo = Nan::New<v8::Object>();
-		FOR_(mangaKeys, i)
+		FOR_(mangaKeys,i)
 		{
-			Nan::Set(mangaInfo, Nan::New(mangaKeys[i]).ToLocalChecked(),
+			Nan::Set(mangaInfo,Nan::New(mangaKeys[i]).ToLocalChecked(),
 				Nan::New(userInfo.Manga.GetKeyValue(mangaKeys[i])).ToLocalChecked());
 		}
-		Nan::Set(val, Nan::New("MangaInfo").ToLocalChecked(), mangaInfo);
+		Nan::Set(val,Nan::New("MangaInfo").ToLocalChecked(),mangaInfo);
 
 		return val;
 	}

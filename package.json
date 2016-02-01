@@ -16,8 +16,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "rebuild": "node-gyp rebuild --debug --target=0.36.4 --arch=x64 --dist-url=https://atom.io/download/atom-shell",
-    "build": "node-gyp build --debug --target=0.36.4 --arch=x64 --dist-url=https://atom.io/download/atom-shell",
+    "rebuild": "node-gyp rebuild --debug --target=0.36.7 --arch=x64 --dist-url=https://atom.io/download/atom-shell",
+    "build": "node-gyp build --debug --target=0.36.7 --arch=x64 --dist-url=https://atom.io/download/atom-shell",
     "conf": "node-gyp configure --debug --arch=x64"
   },
   "repository": {
