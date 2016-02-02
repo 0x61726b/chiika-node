@@ -40,6 +40,7 @@ public:
 	static NAN_METHOD(GetMyAnimelist);
 	static NAN_METHOD(GetMyMangalist);
 	static NAN_METHOD(AnimeScrape);
+	static NAN_METHOD(RefreshAnimeDetails);
 
 	static NAN_METHOD(TestoDicto);
 	static Nan::Persistent<v8::Function> constructor;

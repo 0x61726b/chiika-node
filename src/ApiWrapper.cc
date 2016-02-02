@@ -124,6 +124,13 @@ NAN_METHOD(RootWrapper::New)
 		opts.passWord = (pass);
 		opts.modulePath = (modulePath);*/
 
+		if (userName == "undefined" || pass == "undefined")
+		{
+			userName = "";
+			pass = "";
+		}
+			
+
 
 		root_->Initialize(isAppMode,isDebugMode,strdup(userName.c_str()),strdup(pass.c_str()),strdup(modulePath.c_str()));
 

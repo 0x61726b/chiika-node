@@ -90,10 +90,20 @@ NAN_METHOD(DatabaseWrapper::SetMalUser)
 	userName = std::string(*v8::String::Utf8Value(vUsername));
 	pass = std::string(*v8::String::Utf8Value(vPass));
 
-	root_->GetUser().SetKeyValue("user_name", userName);
-	root_->GetUser().SetKeyValue("Pass", pass);
+	if (userName == "undefined" || pass == "undefined")
+	{
+		info.GetReturnValue().Set(Nan::New(false));
+	}
+	else
+	{
+		root_->GetUser().SetKeyValue("user_name", userName);
+		root_->GetUser().SetKeyValue("Pass", pass);
 
-	info.GetReturnValue().Set(Nan::New(true));
+		info.GetReturnValue().Set(Nan::New(true));
+	}
+	
+
+	
 }
 
 NAN_METHOD(DatabaseWrapper::New)
