@@ -71,6 +71,7 @@ void RequestWrapper::Init(Nan::ADDON_REGISTER_FUNCTION_ARGS_TYPE target,ChiikaAp
 	Nan::SetPrototypeMethod(tpl,"GetMyMangalist",RequestWrapper::GetMyMangalist);
 	Nan::SetPrototypeMethod(tpl,"AnimeScrape",RequestWrapper::AnimeScrape);
 	Nan::SetPrototypeMethod(tpl, "RefreshAnimeDetails", RequestWrapper::RefreshAnimeDetails);
+	Nan::SetPrototypeMethod(tpl, "GetAnimeDetails", RequestWrapper::GetAnimeDetails);
 	Nan::SetPrototypeMethod(tpl,"testo",RequestWrapper::TestoDicto);
 
 	constructor.Reset(Nan::GetFunction(tpl).ToLocalChecked());
@@ -448,6 +449,57 @@ NAN_METHOD(RequestWrapper::RefreshAnimeDetails)
 
 
 	root_->RefreshAnimeDetails(obj, Id);
+}
+
+NAN_METHOD(RequestWrapper::GetAnimeDetails)
+{
+		RequestWrapper *obj = new RequestWrapper;
+	obj->Wrap(info.This());
+
+	v8::Isolate* isolate = info.GetIsolate();
+
+	v8::Local<v8::Array> args = info[2].As<v8::Array>();
+
+	int Id = -1;
+	//Set up callbacks
+	PersistentFunction callbackSuccess;
+	callbackSuccess.Reset((info[0].As<Function>()));
+
+	PersistentFunction callbackError;
+	callbackError.Reset((info[1].As<Function>()));
+
+	Local<Object> animeId;
+	V8Value id = args->Get(v8::String::NewFromUtf8(isolate, "animeId"));
+
+	Id = id->IntegerValue();
+
+	PersistentObject caller;
+	caller.Reset(info.This());
+
+	obj->m_CallbackMap.insert(std::make_pair("GetMalAjaxSuccess",
+		std::make_pair(caller, callbackSuccess)));
+	obj->m_CallbackMap.insert(std::make_pair("GetMalAjaxError",
+		std::make_pair(caller, callbackError)));
+
+	obj->m_CallbackMap.insert(std::make_pair("GetImageSuccess",
+		std::make_pair(caller, callbackSuccess)));
+	obj->m_CallbackMap.insert(std::make_pair("GetImageError",
+		std::make_pair(caller, callbackError)));
+
+	obj->m_CallbackMap.insert(std::make_pair("GetSearchAnimeSuccess",
+		std::make_pair(caller, callbackSuccess)));
+	obj->m_CallbackMap.insert(std::make_pair("GetSearchAnimeError",
+		std::make_pair(caller, callbackError)));
+
+	obj->m_CallbackMap.insert(std::make_pair("GetAnimePageScrapeSuccess",
+		std::make_pair(caller, callbackSuccess)));
+	obj->m_CallbackMap.insert(std::make_pair("GetAnimePageScrapeError",
+		std::make_pair(caller, callbackError)));
+	
+
+
+
+	root_->GetAnimeDetails(obj, Id);
 }
 
 NAN_METHOD(RequestWrapper::New)
