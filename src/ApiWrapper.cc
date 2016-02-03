@@ -18,7 +18,6 @@
 //	Description:
 //----------------------------------------------------------------------------
 #include "ApiWrapper.h"
-#include "Logging\LogManager.h"
 
 #include "RequestWrapper.h"
 #include "DatabaseWrapper.h"

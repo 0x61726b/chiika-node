@@ -21,7 +21,6 @@
 #include "Common\Stable.h"
 #include "Database\Globals.h"
 #include "Root\Root.h"
-#include "Logging\LogManager.h"
 #include "Request\RequestInterface.h"
 
 #include "Converters.h"
@@ -82,7 +81,6 @@ void RequestWrapper::Init(Nan::ADDON_REGISTER_FUNCTION_ARGS_TYPE target,ChiikaAp
 
 void RequestWrapper::OnSuccess(ChiikaApi::RequestInterface* r)
 {
-	root_->m_pLogManager->LogMessage("[Chiika-Node] Success " + r->GetName());
 
 	CallbackMap::iterator It = m_CallbackMap.find(r->GetName() + "Success");
 
@@ -102,7 +100,6 @@ void RequestWrapper::OnSuccess(ChiikaApi::RequestInterface* r)
 
 void RequestWrapper::OnError(ChiikaApi::RequestInterface* r)
 {
-	root_->m_pLogManager->LogMessage("[Chiika-Node] Error " + r->GetName());
 
 	CallbackMap::iterator It = m_CallbackMap.find(r->GetName() + "Error");
 
@@ -361,9 +358,9 @@ NAN_METHOD(RequestWrapper::GetMyAnimelist)
 	PersistentObject caller;
 	caller.Reset(info.This());
 
-	obj->m_CallbackMap.insert(std::make_pair(root_->GetKey(RequestApiValues::REQUEST_GETMYANIMELIST_SUCCESS),
+	obj->m_CallbackMap.insert(std::make_pair("GetMyAnimelistSuccess",
 		std::make_pair(caller,callbackSuccess)));
-	obj->m_CallbackMap.insert(std::make_pair(root_->GetKey(RequestApiValues::REQUEST_GETMYANIMELIST_ERROR),
+	obj->m_CallbackMap.insert(std::make_pair("GetMyAnimelistError",
 		std::make_pair(caller,callbackError)));
 
 

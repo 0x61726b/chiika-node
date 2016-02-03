@@ -19,7 +19,6 @@
 //----------------------------------------------------------------------------
 #include "DatabaseWrapper.h"
 #include "Root\Root.h"
-#include "Logging\LogManager.h"
 #include "Common.h"
 #include "Converters.h"
 //----------------------------------------------------------------------------
