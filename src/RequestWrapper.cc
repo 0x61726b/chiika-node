@@ -243,7 +243,7 @@ PersistentValue RequestWrapper::ParseRequest(const std::string& r,ChiikaApi::Req
 	{
 		Local<Object> val = Nan::New<v8::Object>();
 
-		std::vector<const char*> returnKeylist ={"errorCode","errorDesc","requestName"}; //c++11 rules
+		std::vector<const char*> returnKeylist ={"errorCode","errorDesc","request_name"}; //c++11 rules
 		UserInfo userInfo = root_->GetUser();
 
 
