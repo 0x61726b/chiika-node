@@ -25,6 +25,20 @@
 
 #include "Converters.h"
 
+
+ThreadId GetThreadId() {
+	ThreadId nThreadID;
+#ifdef YUME_PLATFORM_WIN32
+	nThreadID = GetCurrentProcessId();
+	nThreadID = (nThreadID << 16) + GetCurrentThreadId();
+#else
+	nThreadID = getpid();
+	nThreadID = (nThreadID << 16) + pthread_self();
+#endif
+	return nThreadID;
+}
+
+
 Nan::Persistent<v8::Function> RequestWrapper::constructor;
 ChiikaApi::Root* RequestWrapper::root_;
 
@@ -43,6 +57,8 @@ RequestWrapper::RequestWrapper()
 {
 	loop = uv_default_loop();
 	uv_async_init(loop,&async,&RequestWrapper::TaskOnMainThread);
+
+	main_thread = GetThreadId();
 }
 
 RequestWrapper::~RequestWrapper()
@@ -69,9 +85,9 @@ void RequestWrapper::Init(Nan::ADDON_REGISTER_FUNCTION_ARGS_TYPE target,ChiikaAp
 	Nan::SetPrototypeMethod(tpl,"GetMyAnimelist",RequestWrapper::GetMyAnimelist);
 	Nan::SetPrototypeMethod(tpl,"GetMyMangalist",RequestWrapper::GetMyMangalist);
 	Nan::SetPrototypeMethod(tpl,"AnimeScrape",RequestWrapper::AnimeScrape);
-	Nan::SetPrototypeMethod(tpl, "RefreshAnimeDetails", RequestWrapper::RefreshAnimeDetails);
-	Nan::SetPrototypeMethod(tpl, "GetAnimeDetails", RequestWrapper::GetAnimeDetails);
-	Nan::SetPrototypeMethod(tpl, "UpdateAnime", RequestWrapper::UpdateAnime);
+	Nan::SetPrototypeMethod(tpl,"RefreshAnimeDetails",RequestWrapper::RefreshAnimeDetails);
+	Nan::SetPrototypeMethod(tpl,"GetAnimeDetails",RequestWrapper::GetAnimeDetails);
+	Nan::SetPrototypeMethod(tpl,"UpdateAnime",RequestWrapper::UpdateAnime);
 	Nan::SetPrototypeMethod(tpl,"testo",RequestWrapper::TestoDicto);
 
 	constructor.Reset(Nan::GetFunction(tpl).ToLocalChecked());
@@ -87,14 +103,28 @@ void RequestWrapper::OnSuccess(ChiikaApi::RequestInterface* r)
 
 	if(It != m_CallbackMap.end())
 	{
-		CallbackIteratorParams* callback = new CallbackIteratorParams;
-		callback->Callback = It->second.second;
-		callback->Caller = It->second.first;
-		callback->Name = It->first;
-		callback->Request = r;
-		async.data = reinterpret_cast<void*>(callback);
+		if(main_thread == GetThreadId())
+		{
+			RequestWrapper *obj = new RequestWrapper;
+			obj->Wrap(Nan::New(It->second.first));
 
-		uv_async_send(&async);
+			Local<Function> local = Nan::New(It->second.second);
+
+			PersistentValue returnval = obj->ParseRequest(It->first,r);
+			Local<Value> ret[1] ={Nan::New(returnval)};
+			local->Call(Null(Isolate::GetCurrent()),1,ret);
+		}
+		else
+		{
+			CallbackIteratorParams* callback = new CallbackIteratorParams;
+			callback->Callback = It->second.second;
+			callback->Caller = It->second.first;
+			callback->Name = It->first;
+			callback->Request = r;
+			async.data = reinterpret_cast<void*>(callback);
+
+			uv_async_send(&async);
+		}
 	}
 
 }
@@ -106,6 +136,7 @@ void RequestWrapper::OnError(ChiikaApi::RequestInterface* r)
 
 	if(It != m_CallbackMap.end())
 	{
+
 		CallbackIteratorParams* callback = new CallbackIteratorParams;
 		callback->Callback = It->second.second;
 		callback->Caller = It->second.first;
@@ -163,11 +194,11 @@ PersistentValue RequestWrapper::ParseRequest(const std::string& r,ChiikaApi::Req
 	//
 
 	//GetMyAnimelist
-	if (r == "GetMyAnimelistSuccess")
+	if(r == "GetMyAnimelistSuccess")
 	{
 		Local<Object> val = Nan::New<v8::Object>();
 		val = Converters::AnimeListToV8(root_);
-		Nan::Set(val, Nan::New("request_name").ToLocalChecked(), Nan::New(r).ToLocalChecked());
+		Nan::Set(val,Nan::New("request_name").ToLocalChecked(),Nan::New(r).ToLocalChecked());
 		PersistentValue persistent;
 		persistent.Reset(val);
 
@@ -179,7 +210,7 @@ PersistentValue RequestWrapper::ParseRequest(const std::string& r,ChiikaApi::Req
 	{
 		Local<Object> val = Nan::New<v8::Object>();
 		val = Converters::MangaListToV8(root_);
-		Nan::Set(val, Nan::New("request_name").ToLocalChecked(), Nan::New(r).ToLocalChecked());
+		Nan::Set(val,Nan::New("request_name").ToLocalChecked(),Nan::New(r).ToLocalChecked());
 		PersistentValue persistent;
 		persistent.Reset(val);
 
@@ -189,7 +220,7 @@ PersistentValue RequestWrapper::ParseRequest(const std::string& r,ChiikaApi::Req
 	{
 		Local<Object> val = Nan::New<v8::Object>();
 		PersistentValue persistent;
-		Nan::Set(val, Nan::New("request_name").ToLocalChecked(), Nan::New(r).ToLocalChecked());
+		Nan::Set(val,Nan::New("request_name").ToLocalChecked(),Nan::New(r).ToLocalChecked());
 		persistent.Reset(val);
 		return persistent;
 
@@ -199,7 +230,7 @@ PersistentValue RequestWrapper::ParseRequest(const std::string& r,ChiikaApi::Req
 	{
 		Local<Object> val = Nan::New<v8::Object>();
 		val = Converters::AnimeListToV8(root_);
-		Nan::Set(val, Nan::New("request_name").ToLocalChecked(), Nan::New(r).ToLocalChecked());
+		Nan::Set(val,Nan::New("request_name").ToLocalChecked(),Nan::New(r).ToLocalChecked());
 		PersistentValue persistent;
 		persistent.Reset(val);
 
@@ -210,36 +241,46 @@ PersistentValue RequestWrapper::ParseRequest(const std::string& r,ChiikaApi::Req
 	{
 		Local<Object> val = Nan::New<v8::Object>();
 		PersistentValue persistent;
-		Nan::Set(val, Nan::New("request_name").ToLocalChecked(), Nan::New(r).ToLocalChecked());
+		Nan::Set(val,Nan::New("request_name").ToLocalChecked(),Nan::New(r).ToLocalChecked());
 		persistent.Reset(val);
 
 		return persistent;
 	}
 
-	if (r == "FakeRequestSuccess")
+	if(r == "GetSearchAnimeSuccess")
+	{
+		Local<Object> val = Nan::New<v8::Object>();
+		PersistentValue persistent;
+		Nan::Set(val,Nan::New("request_name").ToLocalChecked(),Nan::New(r).ToLocalChecked());
+		persistent.Reset(val);
+
+		return persistent;
+	}
+	if(r == "GetUpdateAnimeSuccess")
 	{
 		Local<Object> val = Nan::New<v8::Object>();
 		PersistentValue persistent;
 
-		Nan::Set(val, Nan::New("request_name").ToLocalChecked(), Nan::New(r).ToLocalChecked());
+		Nan::Set(val,Nan::New("request_name").ToLocalChecked(),Nan::New(r).ToLocalChecked());
 		persistent.Reset(val);
 
 		return persistent;
 	}
 
-	if (r == "GetUpdateAnimeSuccess")
+	if(r == "FakeRequestSuccess")
 	{
 		Local<Object> val = Nan::New<v8::Object>();
 		PersistentValue persistent;
 
-		Nan::Set(val, Nan::New("request_name").ToLocalChecked(), Nan::New(r).ToLocalChecked());
+		Nan::Set(val,Nan::New("request_name").ToLocalChecked(),Nan::New(r).ToLocalChecked());
 		persistent.Reset(val);
 
 		return persistent;
 	}
 
 	//Handling of all failed requests
-	if(r.find("Error") > 0)
+	size_t f = r.find("Error");
+	if(f != std::string::npos)
 	{
 		Local<Object> val = Nan::New<v8::Object>();
 
@@ -288,7 +329,7 @@ NAN_METHOD(RequestWrapper::AnimeScrape)
 	callbackError.Reset((info[1].As<Function>()));
 
 	Local<Object> animeId;
-	V8Value id = args->Get(v8::String::NewFromUtf8(isolate, "animeId"));
+	V8Value id = args->Get(v8::String::NewFromUtf8(isolate,"animeId"));
 
 	Id = id->Int32Value();
 
@@ -301,16 +342,16 @@ NAN_METHOD(RequestWrapper::AnimeScrape)
 		std::make_pair(caller,callbackError)));
 
 	obj->m_CallbackMap.insert(std::make_pair("GetImageSuccess",
-		std::make_pair(caller, callbackSuccess)));
+		std::make_pair(caller,callbackSuccess)));
 	obj->m_CallbackMap.insert(std::make_pair("GetImageError",
-		std::make_pair(caller, callbackError)));
+		std::make_pair(caller,callbackError)));
 
 	obj->m_CallbackMap.insert(std::make_pair("GetSearchAnimeSuccess",
-		std::make_pair(caller, callbackSuccess)));
+		std::make_pair(caller,callbackSuccess)));
 	obj->m_CallbackMap.insert(std::make_pair("GetSearchAnimeError",
-		std::make_pair(caller, callbackError)));
+		std::make_pair(caller,callbackError)));
 
-	
+
 
 	root_->MalAjax(obj,Id);
 }
@@ -438,7 +479,7 @@ NAN_METHOD(RequestWrapper::RefreshAnimeDetails)
 	callbackError.Reset((info[1].As<Function>()));
 
 	Local<Object> animeId;
-	V8Value id = args->Get(v8::String::NewFromUtf8(isolate, "animeId"));
+	V8Value id = args->Get(v8::String::NewFromUtf8(isolate,"animeId"));
 
 	Id = id->Int32Value();
 
@@ -446,28 +487,28 @@ NAN_METHOD(RequestWrapper::RefreshAnimeDetails)
 	caller.Reset(info.This());
 
 	obj->m_CallbackMap.insert(std::make_pair("GetMalAjaxSuccess",
-		std::make_pair(caller, callbackSuccess)));
+		std::make_pair(caller,callbackSuccess)));
 	obj->m_CallbackMap.insert(std::make_pair("GetMalAjaxError",
-		std::make_pair(caller, callbackError)));
+		std::make_pair(caller,callbackError)));
 
 	obj->m_CallbackMap.insert(std::make_pair("GetImageSuccess",
-		std::make_pair(caller, callbackSuccess)));
+		std::make_pair(caller,callbackSuccess)));
 	obj->m_CallbackMap.insert(std::make_pair("GetImageError",
-		std::make_pair(caller, callbackError)));
+		std::make_pair(caller,callbackError)));
 
 	obj->m_CallbackMap.insert(std::make_pair("GetSearchAnimeSuccess",
-		std::make_pair(caller, callbackSuccess)));
+		std::make_pair(caller,callbackSuccess)));
 	obj->m_CallbackMap.insert(std::make_pair("GetSearchAnimeError",
-		std::make_pair(caller, callbackError)));
+		std::make_pair(caller,callbackError)));
 
 	obj->m_CallbackMap.insert(std::make_pair("GetAnimePageScrapeSuccess",
-		std::make_pair(caller, callbackSuccess)));
+		std::make_pair(caller,callbackSuccess)));
 	obj->m_CallbackMap.insert(std::make_pair("GetAnimePageScrapeError",
-		std::make_pair(caller, callbackError)));
+		std::make_pair(caller,callbackError)));
 
 
 
-	root_->RefreshAnimeDetails(obj, Id);
+	root_->RefreshAnimeDetails(obj,Id);
 }
 
 NAN_METHOD(RequestWrapper::GetAnimeDetails)
@@ -488,7 +529,7 @@ NAN_METHOD(RequestWrapper::GetAnimeDetails)
 	callbackError.Reset((info[1].As<Function>()));
 
 	Local<Object> animeId;
-	V8Value id = args->Get(v8::String::NewFromUtf8(isolate, "animeId"));
+	V8Value id = args->Get(v8::String::NewFromUtf8(isolate,"animeId"));
 
 	Id = id->Int32Value();
 
@@ -496,32 +537,32 @@ NAN_METHOD(RequestWrapper::GetAnimeDetails)
 	caller.Reset(info.This());
 
 	obj->m_CallbackMap.insert(std::make_pair("GetMalAjaxSuccess",
-		std::make_pair(caller, callbackSuccess)));
+		std::make_pair(caller,callbackSuccess)));
 	obj->m_CallbackMap.insert(std::make_pair("GetMalAjaxError",
-		std::make_pair(caller, callbackError)));
+		std::make_pair(caller,callbackError)));
 
 	obj->m_CallbackMap.insert(std::make_pair("GetImageSuccess",
-		std::make_pair(caller, callbackSuccess)));
+		std::make_pair(caller,callbackSuccess)));
 	obj->m_CallbackMap.insert(std::make_pair("GetImageError",
-		std::make_pair(caller, callbackError)));
+		std::make_pair(caller,callbackError)));
 
 	obj->m_CallbackMap.insert(std::make_pair("GetSearchAnimeSuccess",
-		std::make_pair(caller, callbackSuccess)));
+		std::make_pair(caller,callbackSuccess)));
 	obj->m_CallbackMap.insert(std::make_pair("GetSearchAnimeError",
-		std::make_pair(caller, callbackError)));
+		std::make_pair(caller,callbackError)));
 
 	obj->m_CallbackMap.insert(std::make_pair("GetAnimePageScrapeSuccess",
-		std::make_pair(caller, callbackSuccess)));
+		std::make_pair(caller,callbackSuccess)));
 	obj->m_CallbackMap.insert(std::make_pair("GetAnimePageScrapeError",
-		std::make_pair(caller, callbackError)));
+		std::make_pair(caller,callbackError)));
 
 	obj->m_CallbackMap.insert(std::make_pair("FakeRequestSuccess",
-		std::make_pair(caller, callbackSuccess)));
+		std::make_pair(caller,callbackSuccess)));
 	
 
 
 
-	root_->GetAnimeDetails(obj, Id);
+	root_->GetAnimeDetails(obj,Id);
 }
 
 NAN_METHOD(RequestWrapper::UpdateAnime)
@@ -545,10 +586,10 @@ NAN_METHOD(RequestWrapper::UpdateAnime)
 	callbackError.Reset((info[1].As<Function>()));
 
 
-	V8Value id = args->Get(v8::String::NewFromUtf8(isolate, "animeId"));
-	V8Value progress = args->Get(v8::String::NewFromUtf8(isolate, "progress"));
-	V8Value score = args->Get(v8::String::NewFromUtf8(isolate, "score"));
-	V8Value status = args->Get(v8::String::NewFromUtf8(isolate, "status"));
+	V8Value id = args->Get(v8::String::NewFromUtf8(isolate,"animeId"));
+	V8Value progress = args->Get(v8::String::NewFromUtf8(isolate,"progress"));
+	V8Value score = args->Get(v8::String::NewFromUtf8(isolate,"score"));
+	V8Value status = args->Get(v8::String::NewFromUtf8(isolate,"status"));
 
 	Id = id->Int32Value();
 	Progress = progress->Int32Value();
@@ -559,14 +600,14 @@ NAN_METHOD(RequestWrapper::UpdateAnime)
 	caller.Reset(info.This());
 
 	obj->m_CallbackMap.insert(std::make_pair("GetUpdateAnimeSuccess",
-		std::make_pair(caller, callbackSuccess)));
+		std::make_pair(caller,callbackSuccess)));
 	obj->m_CallbackMap.insert(std::make_pair("GetUpdateAnimeError",
-		std::make_pair(caller, callbackError)));
+		std::make_pair(caller,callbackError)));
 
 
 
 
-	root_->UpdateAnime(obj, Id,Score,Progress,Status);
+	root_->UpdateAnime(obj,Id,Score,Progress,Status);
 }
 
 NAN_METHOD(RequestWrapper::New)

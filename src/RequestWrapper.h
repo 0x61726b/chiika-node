@@ -25,6 +25,15 @@
 #include "Request\RequestInterface.h"
 #include "Common.h"
 //----------------------------------------------------------------------------
+#ifdef YUME_PLATFORM_WIN32
+#include <windows.h>
+typedef DWORD ThreadId;
+#else
+#include <unistd.h>
+#include <pthread.h>
+typedef unsigned int ThreadId;
+#endif
+//----------------------------------------------------------------------------
 class RequestWrapper : public Nan::ObjectWrap, public ChiikaApi::RequestListener
 {
 public:
@@ -67,6 +76,8 @@ public:
 
 	uv_async_t async;
 	uv_loop_t *loop;
+
+	ThreadId main_thread;
 };
 //----------------------------------------------------------------------------
 #endif

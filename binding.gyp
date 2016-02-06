@@ -18,6 +18,9 @@
             "cflags": [
                 "-std=c++11"
             ],
+            "defines!":[
+                '_HAS_EXPECTIONS=0'
+            ],
             "link_settings": {
                 "libraries": [
                     "-llibcurl_imp",
