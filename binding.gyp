@@ -42,7 +42,10 @@
                                         "deps/x86_64/Debug/pugixml.lib",
                                         "deps/x86_64/Debug/pugixml.dll",
                                         "deps/x86_64/Debug/ChiikaApi.lib",
-                                        "deps/x86_64/Debug/ChiikaApi.dll"
+                                        "deps/x86_64/Debug/ChiikaApi.dll",
+                                        "deps/x86_64/Debug/log4cplusd.dll",
+                                        "deps/x86_64/Debug/log4cplusd.lib",
+                                        "deps/x86_64/Debug/log4cplusconfig"
                 ]
             }],
             "configurations": {
