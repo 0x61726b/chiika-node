@@ -1,4 +1,9 @@
 {
+'conditions': [
+  ['OS=="linux"', {
+
+  }],
+  ['OS=="win"', {
     "targets": [
         {
             "target_name": "ChiikaNative",
@@ -24,10 +29,7 @@
             "copies":[{
                 'destination': '<(PRODUCT_DIR)',
                 "files":[
-                                        "../ChiikaApi/build/Chiika/Debug/libcurl_imp.lib",
-                                        "../ChiikaApi/build/Chiika/Debug/libcurl.dll",
-                                        "../ChiikaApi/build/Chiika/Debug/ChiikaApi.lib",
-                                        "../ChiikaApi/build/Chiika/Debug/ChiikaApi.dll"
+                        "../ChiikaApi/build/Chiika/Debug/./"
                 ]
             }],
             "link_settings": {
@@ -54,7 +56,7 @@
                             "LinkTimeCodeGeneration": 1,
                             "LinkIncremental": 1,
                             "AdditionalLibraryDirectories": [
-                                "D:/Arken/C++/ElectronProjects/Chiika/lib/ChiikaApi/build/Chiika/Debug",
+                                "../../ChiikaApi/build/Chiika/Debug",
                              ]
                         }
                     }
@@ -75,5 +77,6 @@
                 "../ChiikaApi/ChiikaAPI"
             ]
         }
-    ]
+    ]}
+]]
 }
