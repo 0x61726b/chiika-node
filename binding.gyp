@@ -29,7 +29,10 @@
             "copies":[{
                 'destination': '<(PRODUCT_DIR)',
                 "files":[
-                        "../ChiikaApi/build/Chiika/Debug/./"
+                        "../ChiikaApi/build/Chiika/Debug/ChiikaApi.lib",
+                        "../ChiikaApi/build/Chiika/Debug/ChiikaApi.dll",
+                        "../ChiikaApi/build/Chiika/Debug/libcurl_imp.lib",
+                        "../ChiikaApi/build/Chiika/Debug/libcurl.dll"
                 ]
             }],
             "link_settings": {
