@@ -28,7 +28,7 @@ ChiikaApi::Root* RootWrapper::root_;
 
 
 const char kArgsAppMode[] = "appMode";
-const char kArgsDebugMode[] = "debugMode";
+const char kArgsLogLevel[] = "logLevel";
 const char kArgsUserName[] = "userName";
 const char kArgsPass[] = "pass";
 const char kArgsModulePath[] = "modulePath";
@@ -59,7 +59,7 @@ void RootWrapper::Init(Nan::ADDON_REGISTER_FUNCTION_ARGS_TYPE target, ChiikaApi:
 
 
 	tpl->Set(DEFINE_PROPERTY(kArgsAppMode, Nan::New(false)));
-	tpl->Set(DEFINE_PROPERTY(kArgsDebugMode, Nan::New(false)));
+	tpl->Set(DEFINE_PROPERTY(kArgsLogLevel, Nan::New(1)));
 
 	tpl->Set(DEFINE_PROPERTY(kArgsUserName, Nan::New("Not_Defined").ToLocalChecked()));
 	tpl->Set(DEFINE_PROPERTY(kArgsPass, Nan::New("Not_Defined").ToLocalChecked()));
@@ -98,20 +98,20 @@ NAN_METHOD(RootWrapper::New)
 
 
 		bool isAppMode = false;
-		bool isDebugMode = false;
+		int logLevel = 1;
 		std::string userName = "";
 		std::string pass = "";
 		std::string modulePath = "";
 		v8::Local<v8::Array> args = info[0].As<v8::Array>();
 
 		V8Value vAppMode = args->Get(v8::String::NewFromUtf8(isolate, kArgsAppMode));
-		V8Value vDebugMode = args->Get(v8::String::NewFromUtf8(isolate, kArgsDebugMode));
+		V8Value vLogLevel = args->Get(v8::String::NewFromUtf8(isolate, kArgsLogLevel));
 		V8Value vUserName = args->Get(v8::String::NewFromUtf8(isolate, kArgsUserName));
 		V8Value vPass = args->Get(v8::String::NewFromUtf8(isolate, kArgsPass));
 		V8Value vModulePath = args->Get(v8::String::NewFromUtf8(isolate, kArgsModulePath));
 
 		isAppMode = vAppMode->BooleanValue();
-		isDebugMode = vDebugMode->BooleanValue();
+		logLevel = vLogLevel->Int32Value();
 		userName = std::string(*v8::String::Utf8Value(vUserName));
 		pass = std::string(*v8::String::Utf8Value(vPass));
 		modulePath = std::string(*v8::String::Utf8Value(vModulePath));
@@ -131,7 +131,7 @@ NAN_METHOD(RootWrapper::New)
 			
 
 
-		root_->Initialize(isAppMode,isDebugMode,strdup(userName.c_str()),strdup(pass.c_str()),strdup(modulePath.c_str()));
+		root_->Initialize(isAppMode, logLevel, strdup(userName.c_str()), strdup(pass.c_str()), strdup(modulePath.c_str()));
 
 
 		info.GetReturnValue().Set(info.This());
@@ -160,9 +160,9 @@ NAN_PROPERTY_GETTER(RootWrapper::RootGetter)
 		bool appMode = obj->root_->GetRootOptions().appMode;
 		info.GetReturnValue().Set(Nan::New(appMode));
 	}
-	if (prop == kArgsDebugMode)
+	if (prop == kArgsLogLevel)
 	{
-		bool debugMode = obj->root_->GetRootOptions().debugMode;
+		int debugMode = obj->root_->GetRootOptions().log_level;
 		info.GetReturnValue().Set(Nan::New(debugMode));
 	}
 	if (prop == kArgsUserName)
