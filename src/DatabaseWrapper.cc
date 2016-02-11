@@ -31,7 +31,8 @@ using namespace ChiikaApi;
 
 const char* kAnimeListProperty = "Animelist";
 const char* kPropertyMangaList = "Mangalist";
-const char* kPropertyUserInfo = "User"; 
+const char* kPropertyUserInfo = "User";
+const char* kPropertySenpaiData = "Senpai";
 
 const char* kArgUsername = "userName";
 const char* kArgPass = "password";
@@ -61,6 +62,7 @@ void DatabaseWrapper::Init(Nan::ADDON_REGISTER_FUNCTION_ARGS_TYPE target, Chiika
 	tpl->Set(DEFINE_PROPERTY(kAnimeListProperty, Nan::New<Object>()));
 	tpl->Set(DEFINE_PROPERTY(kPropertyUserInfo, Nan::New<Object>()));
 	tpl->Set(DEFINE_PROPERTY(kPropertyMangaList, Nan::New<Object>()));
+	tpl->Set(DEFINE_PROPERTY(kPropertySenpaiData, Nan::New<Object>()));
 
 	Nan::SetNamedPropertyHandler(inst,
 		DatabaseWrapper::DatabaseGetter);
@@ -144,6 +146,12 @@ NAN_PROPERTY_GETTER(DatabaseWrapper::DatabaseGetter)
 	if (prop == kPropertyMangaList)
 	{
 		v8::Local<v8::Value> val = Converters::MangaListToV8(obj->root_);
+		info.GetReturnValue().Set(val);
+	}
+
+	if (prop == kPropertySenpaiData)
+	{
+		v8::Local<v8::Value> val = Converters::SenpaiDataToV8(obj->root_);
 		info.GetReturnValue().Set(val);
 	}
 
