@@ -18,6 +18,7 @@
 //	Description:
 //----------------------------------------------------------------------------
 #include "Converters.h"
+#include "Common\Required.h"
 #include "Root\Root.h"
 using namespace v8;
 using namespace ChiikaApi;
@@ -236,9 +237,41 @@ namespace Converters
 
 		return val;
 	}
+
 	std::string ObjectToString(v8::Local<Value> value)
 	{
 		String::Utf8Value utf8_value(value);
 		return std::string(*utf8_value);
+	}
+
+	v8::Local<v8::Object> SenpaiDataToV8(ChiikaApi::Root* root)
+	{
+		Local<Object> val = Nan::New<v8::Object>();
+
+		std::vector<ChiikaApi::SenpaiItem> senpaiData = root->GetSenpaiData();
+		Local<Array> moeArray = Nan::New<v8::Array>();
+		FOR_(senpaiData,i)
+		{
+			Local<Object> moe = Nan::New<v8::Object>();
+			
+
+			
+			Nan::Set(moe,Nan::New("Name").ToLocalChecked(),Nan::New(senpaiData[i].Name).ToLocalChecked());
+			Nan::Set(moe,Nan::New("MalId").ToLocalChecked(),Nan::New(senpaiData[i].MalID));
+			
+
+			Local<Object> airdate = Nan::New<v8::Object>();
+
+			ChiikaApi::Airdate ad = senpaiData[i].Airdates[0];
+
+			Nan::Set(airdate,Nan::New("RdDate").ToLocalChecked(),Nan::New(ad.RdDate).ToLocalChecked());
+			Nan::Set(airdate,Nan::New("RdTime").ToLocalChecked(),Nan::New(ad.RdTime).ToLocalChecked());
+			Nan::Set(airdate,Nan::New("RdWeekday").ToLocalChecked(),Nan::New(ad.RdWeekday).ToLocalChecked());
+
+			Nan::Set(moe,Nan::New("Airdate").ToLocalChecked(),airdate);
+			Nan::Set(moeArray,i,moe);
+		}
+
+		return moeArray;
 	}
 }
