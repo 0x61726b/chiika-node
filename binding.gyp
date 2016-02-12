@@ -38,7 +38,7 @@
             "link_settings": {
                 "libraries": [
                     "-llibcurl_imp",
-                    "-lChiikaApi",
+                    "-lChiikaApi"
                 ]
             },
             "variables":{

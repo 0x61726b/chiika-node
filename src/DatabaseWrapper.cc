@@ -37,9 +37,17 @@ const char* kPropertySenpaiData = "Senpai";
 const char* kArgUsername = "userName";
 const char* kArgPass = "password";
 
+struct SystemEventCallbackParams
+{
+	Nan::Persistent<v8::Object,v8::CopyablePersistentTraits<v8::Object>> Caller;
+	Nan::Persistent<v8::Function,v8::CopyablePersistentTraits<v8::Function>> Callback;
+	ChiikaApi::SystemEvents Event;
+};
+
 DatabaseWrapper::DatabaseWrapper()
 {
-
+	loop = uv_default_loop();
+	uv_async_init(loop,&async,&DatabaseWrapper::TaskOnMainThread);
 
 }
 
@@ -48,7 +56,36 @@ DatabaseWrapper::~DatabaseWrapper()
 
 }
 
-void DatabaseWrapper::Init(Nan::ADDON_REGISTER_FUNCTION_ARGS_TYPE target, ChiikaApi::Root* r)
+void DatabaseWrapper::TaskOnMainThread(uv_async_t* req)
+{
+	SystemEventCallbackParams* params = reinterpret_cast<SystemEventCallbackParams*>(req->data);
+	DatabaseWrapper *obj = new DatabaseWrapper;
+
+
+	if(params)
+	{
+		obj->Wrap(Nan::New(params->Caller));
+		Local<Function> local = Nan::New(params->Callback);
+
+		if(params->Event == 0)
+		{
+			PersistentValue returnval;
+			Local<Object> val = Nan::New<v8::Object>();
+			Nan::Set(val,Nan::New("event_name").ToLocalChecked(),Nan::New("chiika_fs_ready").ToLocalChecked());
+
+			returnval.Reset(val);
+
+			Local<Value> ret[1] ={Nan::New(returnval)};
+
+
+			local->Call(Null(Isolate::GetCurrent()),1,ret);
+		}
+
+
+	}
+}
+
+void DatabaseWrapper::Init(Nan::ADDON_REGISTER_FUNCTION_ARGS_TYPE target,ChiikaApi::Root* r)
 {
 	root_ = r;
 	v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
@@ -57,19 +94,19 @@ void DatabaseWrapper::Init(Nan::ADDON_REGISTER_FUNCTION_ARGS_TYPE target, Chiika
 
 	v8::Local<v8::ObjectTemplate> inst = tpl->InstanceTemplate();
 
-	Nan::SetPrototypeMethod(tpl, "SetUser", DatabaseWrapper::SetMalUser);
+	Nan::SetPrototypeMethod(tpl,"SetUser",DatabaseWrapper::SetMalUser);
 
-	tpl->Set(DEFINE_PROPERTY(kAnimeListProperty, Nan::New<Object>()));
-	tpl->Set(DEFINE_PROPERTY(kPropertyUserInfo, Nan::New<Object>()));
-	tpl->Set(DEFINE_PROPERTY(kPropertyMangaList, Nan::New<Object>()));
-	tpl->Set(DEFINE_PROPERTY(kPropertySenpaiData, Nan::New<Object>()));
+	tpl->Set(DEFINE_PROPERTY(kAnimeListProperty,Nan::New<Object>()));
+	tpl->Set(DEFINE_PROPERTY(kPropertyUserInfo,Nan::New<Object>()));
+	tpl->Set(DEFINE_PROPERTY(kPropertyMangaList,Nan::New<Object>()));
+	tpl->Set(DEFINE_PROPERTY(kPropertySenpaiData,Nan::New<Object>()));
 
 	Nan::SetNamedPropertyHandler(inst,
 		DatabaseWrapper::DatabaseGetter);
 
 
 	constructor.Reset(Nan::GetFunction(tpl).ToLocalChecked());
-	Nan::Set(target, Nan::New("Database").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
+	Nan::Set(target,Nan::New("Database").ToLocalChecked(),Nan::GetFunction(tpl).ToLocalChecked());
 
 
 }
@@ -85,47 +122,70 @@ NAN_METHOD(DatabaseWrapper::SetMalUser)
 	std::string userName = "";
 	std::string pass = "";
 
-	V8Value vUsername = args->Get(v8::String::NewFromUtf8(isolate, kArgUsername));
-	V8Value vPass	  = args->Get(v8::String::NewFromUtf8(isolate, kArgPass));
+	V8Value vUsername = args->Get(v8::String::NewFromUtf8(isolate,kArgUsername));
+	V8Value vPass	  = args->Get(v8::String::NewFromUtf8(isolate,kArgPass));
 
 	userName = std::string(*v8::String::Utf8Value(vUsername));
 	pass = std::string(*v8::String::Utf8Value(vPass));
 
-	if (userName == "undefined" || pass == "undefined")
+	if(userName == "undefined" || pass == "undefined")
 	{
 		info.GetReturnValue().Set(Nan::New(false));
 	}
 	else
 	{
-		root_->GetUser().SetKeyValue("user_name", userName);
-		root_->GetUser().SetKeyValue("Pass", pass);
+		root_->GetUser().SetKeyValue("user_name",userName);
+		root_->GetUser().SetKeyValue("Pass",pass);
 
 		info.GetReturnValue().Set(Nan::New(true));
 	}
-	
 
-	
+
+
 }
 
 NAN_METHOD(DatabaseWrapper::New)
 {
-	if (info.IsConstructCall())
+	if(info.IsConstructCall())
 	{
 		v8::Isolate* isolate = info.GetIsolate();
 		DatabaseWrapper *obj = new DatabaseWrapper;
 		obj->Wrap(info.This());
+
+
+
+		PersistentFunction callback;
+		callback.Reset((info[0].As<Function>()));
+
+		PersistentObject caller;
+		caller.Reset(info.This());
+
+		obj->m_Caller = caller;
+		obj->m_SystemEventCallback = callback;
+
+		root_->RegisterSystemEventListener(obj);
+		root_->InitDatabase();
 	}
 	else
 	{
 		const int argc = 1;
-		v8::Local<v8::Value> argv[argc] = { info[0] };
+		v8::Local<v8::Value> argv[argc] ={info[0]};
 		v8::Local<v8::Function> cons = Nan::New(constructor);
-		info.GetReturnValue().Set(cons->NewInstance(argc, argv));
+		info.GetReturnValue().Set(cons->NewInstance(argc,argv));
 	}
 
 
 }
+void DatabaseWrapper::OnEvent(ChiikaApi::SystemEvents evt)
+{
+	SystemEventCallbackParams* callback = new SystemEventCallbackParams;
+	callback->Callback = m_SystemEventCallback;
+	callback->Caller = m_Caller;
+	callback->Event = evt;
+	async.data = reinterpret_cast<void*>(callback);
 
+	uv_async_send(&async);
+}
 NAN_PROPERTY_GETTER(DatabaseWrapper::DatabaseGetter)
 {
 	DatabaseWrapper* obj = Nan::ObjectWrap::Unwrap<DatabaseWrapper>(info.This());

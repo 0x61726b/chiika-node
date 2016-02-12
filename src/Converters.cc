@@ -250,6 +250,7 @@ namespace Converters
 
 		std::vector<ChiikaApi::SenpaiItem> senpaiData = root->GetSenpaiData();
 		Local<Array> moeArray = Nan::New<v8::Array>();
+
 		FOR_(senpaiData,i)
 		{
 			Local<Object> moe = Nan::New<v8::Object>();
@@ -262,11 +263,9 @@ namespace Converters
 
 			Local<Object> airdate = Nan::New<v8::Object>();
 
-			ChiikaApi::Airdate ad = senpaiData[i].Airdates[0];
-
-			Nan::Set(airdate,Nan::New("RdDate").ToLocalChecked(),Nan::New(ad.RdDate).ToLocalChecked());
-			Nan::Set(airdate,Nan::New("RdTime").ToLocalChecked(),Nan::New(ad.RdTime).ToLocalChecked());
-			Nan::Set(airdate,Nan::New("RdWeekday").ToLocalChecked(),Nan::New(ad.RdWeekday).ToLocalChecked());
+			Nan::Set(airdate,Nan::New("RdDate").ToLocalChecked(),Nan::New(senpaiData[i].Airdates.begin()->second.RdDate).ToLocalChecked());
+			Nan::Set(airdate,Nan::New("RdTime").ToLocalChecked(),Nan::New(senpaiData[i].Airdates.begin()->second.RdTime).ToLocalChecked());
+			Nan::Set(airdate,Nan::New("RdWeekday").ToLocalChecked(),Nan::New(senpaiData[i].Airdates.begin()->second.RdWeekday).ToLocalChecked());
 
 			Nan::Set(moe,Nan::New("Airdate").ToLocalChecked(),airdate);
 			Nan::Set(moeArray,i,moe);

@@ -21,12 +21,14 @@
 #define __DatabaseWrapper_h__
 //----------------------------------------------------------------------------
 #include <nan.h>
-#include "Root\Root.h"
+#include "Common/Required.h"
+#include "Root/Root.h"
+#include "Common.h"
 //----------------------------------------------------------------------------
-class DatabaseWrapper : public Nan::ObjectWrap
+class DatabaseWrapper : public Nan::ObjectWrap,public ChiikaApi::SystemEventListener
 {
 public:
-	static void Init(Nan::ADDON_REGISTER_FUNCTION_ARGS_TYPE target, ChiikaApi::Root* r);
+	static void Init(Nan::ADDON_REGISTER_FUNCTION_ARGS_TYPE target,ChiikaApi::Root* r);
 
 public:
 	explicit DatabaseWrapper();
@@ -41,6 +43,17 @@ public:
 	static Nan::Persistent<v8::Function> constructor;
 
 	static ChiikaApi::Root* root_;
+
+	void OnEvent(ChiikaApi::SystemEvents);
+
+	PersistentFunction m_SystemEventCallback;
+	PersistentObject m_Caller;
+
+	static void TaskOnMainThread(uv_async_t* req);
+
+	uv_async_t async;
+	uv_loop_t *loop;
+
 };
 
 
