@@ -18,10 +18,14 @@
 //	Description:
 //----------------------------------------------------------------------------
 #include "RequestWrapper.h"
-#include "Common\Stable.h"
-#include "Database\Globals.h"
-#include "Root\Root.h"
-#include "Request\RequestInterface.h"
+#include "Common/Stable.h"
+#include "Database/Globals.h"
+#include "Root/Root.h"
+#include "Request/RequestInterface.h"
+
+#include "Request/SearchAnime.h"
+#include "Request/MalAjax.h"
+#include "Request/MalAnimePageScrape.h"
 
 #include "Converters.h"
 
@@ -230,6 +234,13 @@ PersistentValue RequestWrapper::ParseRequest(const std::string& r,ChiikaApi::Req
 	{
 		Local<Object> val = Nan::New<v8::Object>();
 		val = Converters::AnimeListToV8(root_);
+
+		ChiikaApi::AnimePageScrapeRequest* scrapeRequest = static_cast<ChiikaApi::AnimePageScrapeRequest*>(request);
+		if(scrapeRequest)
+		{
+			val = Converters::AnimeToV8(root_,std::to_string(scrapeRequest->GetAnimeId()));
+		}
+		
 		Nan::Set(val,Nan::New("request_name").ToLocalChecked(),Nan::New(r).ToLocalChecked());
 		PersistentValue persistent;
 		persistent.Reset(val);
@@ -241,6 +252,13 @@ PersistentValue RequestWrapper::ParseRequest(const std::string& r,ChiikaApi::Req
 	{
 		Local<Object> val = Nan::New<v8::Object>();
 		PersistentValue persistent;
+		ChiikaApi::MalAjaxRequest* ajaxRequest = static_cast<ChiikaApi::MalAjaxRequest*>(request);
+
+		if(ajaxRequest)
+		{
+			val = Converters::AnimeToV8(root_,std::to_string(ajaxRequest->GetAnimeId()));
+		}
+
 		Nan::Set(val,Nan::New("request_name").ToLocalChecked(),Nan::New(r).ToLocalChecked());
 		persistent.Reset(val);
 
@@ -251,6 +269,13 @@ PersistentValue RequestWrapper::ParseRequest(const std::string& r,ChiikaApi::Req
 	{
 		Local<Object> val = Nan::New<v8::Object>();
 		PersistentValue persistent;
+		
+		ChiikaApi::SearchAnimeRequest* searchRequest = static_cast<ChiikaApi::SearchAnimeRequest*>(request);
+
+		if(searchRequest)
+		{
+			val = Converters::AnimeToV8(root_,std::to_string(searchRequest->GetAnimeId()));
+		}
 		Nan::Set(val,Nan::New("request_name").ToLocalChecked(),Nan::New(r).ToLocalChecked());
 		persistent.Reset(val);
 

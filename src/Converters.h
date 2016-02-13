@@ -29,6 +29,7 @@ namespace Converters
 	v8::Local<v8::Object> MangaListToV8(ChiikaApi::Root* root);
 	v8::Local<v8::Object> UserInfoToV8(ChiikaApi::Root* root);
 	v8::Local<v8::Object> SenpaiDataToV8(ChiikaApi::Root* root);
+	v8::Local<v8::Object> AnimeToV8(ChiikaApi::Root* root,std::string animeId);
 	std::string ObjectToString(v8::Local<v8::Value> value);
 }
 
