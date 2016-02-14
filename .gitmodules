@@ -1,0 +1,4 @@
+[submodule "ChiikaApi"]
+	path = ChiikaApi
+	url = https://github.com/arkenthera/ChiikaApi
+	branch = master
