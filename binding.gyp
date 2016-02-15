@@ -1,4 +1,7 @@
 {
+   "variables": {
+  	  "chiikaapi_output%": "/home/arkenthera/code/chiika-node/ChiikaApi/build/Chiika"
+    },
     "targets": [
         {
             "target_name": "ChiikaNative",
@@ -77,12 +80,9 @@
                     }
                 }]
             ],
-            "link_settings": {
-                "libraries": [
-                    "-llibcurl_imp",
-                    "-lChiikaApi"
-                ]
-            },
+            "libraries": [
+		  "/usr/lib/libChiikaApi.so"
+            ],
             "variables":{
                 "CURRENT_DIR":"<!(echo %~dp0)"
             },
