@@ -18,8 +18,8 @@
 //	Description:
 //----------------------------------------------------------------------------
 #include "Converters.h"
-#include "Common\Required.h"
-#include "Root\Root.h"
+#include "Common/Required.h"
+#include "Root/Root.h"
 using namespace v8;
 using namespace ChiikaApi;
 

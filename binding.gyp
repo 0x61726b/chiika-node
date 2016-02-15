@@ -35,7 +35,25 @@
                         },
                     },
                 },
+                'OS=="linux"', {
+                    "copies": [{
+                        'destination': '<(PRODUCT_DIR)',
+                        "files":[
+                                "ChiikaApi/build/Chiika/libChiikaApi.so",
+                                "ChiikaApi/build/Chiika/libcurl.so"
+                        ]
+                    }],
+                },
                 "OS=='win'",{
+                    "copies": [{
+                        'destination': '<(PRODUCT_DIR)',
+                        "files":[
+                            "ChiikaApi/build/Chiika/Debug/ChiikaApi.lib",
+                            "ChiikaApi/build/Chiika/Debug/ChiikaApi.dll",
+                            "ChiikaApi/build/Chiika/Debug/libcurl_imp.lib",
+                            "ChiikaApi/build/Chiika/Debug/libcurl.dll"
+                        ]
+                    }],
                     "configurations":{
                         "Debug":{
                             "msvs_settings": {
@@ -51,19 +69,10 @@
                                     "LinkTimeCodeGeneration": 1,
                                     "LinkIncremental": 1,
                                     "AdditionalLibraryDirectories": [
-                                        "D:/Arken/C++/ElectronProjects/chiika-node/ChiikaApi/build/Chiika/Debug",
+                                        "<(PRODUCT_DIR)/../../ChiikaApi/build/Chiika/Debug",
                                      ]
                                 }
                             },
-                            "copies": [{
-                                'destination': '<(PRODUCT_DIR)',
-                                "files":[
-                                    "ChiikaApi/build/Chiika/Debug/ChiikaApi.lib",
-                                    "ChiikaApi/build/Chiika/Debug/ChiikaApi.dll",
-                                    "ChiikaApi/build/Chiika/Debug/libcurl_imp.lib",
-                                    "ChiikaApi/build/Chiika/Debug/libcurl.dll"
-                                ]
-                            }],
                         }
                     }
                 }]

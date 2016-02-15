@@ -29,20 +29,6 @@
 
 #include "Converters.h"
 
-
-ThreadId GetThreadId() {
-	ThreadId nThreadID;
-#ifdef YUME_PLATFORM_WIN32
-	nThreadID = GetCurrentProcessId();
-	nThreadID = (nThreadID << 16) + GetCurrentThreadId();
-#else
-	nThreadID = getpid();
-	nThreadID = (nThreadID << 16) + pthread_self();
-#endif
-	return nThreadID;
-}
-
-
 Nan::Persistent<v8::Function> RequestWrapper::constructor;
 ChiikaApi::Root* RequestWrapper::root_;
 
@@ -61,8 +47,6 @@ RequestWrapper::RequestWrapper()
 {
 	loop = uv_default_loop();
 	uv_async_init(loop,&async,&RequestWrapper::TaskOnMainThread);
-
-	main_thread = GetThreadId();
 }
 
 RequestWrapper::~RequestWrapper()
@@ -107,28 +91,14 @@ void RequestWrapper::OnSuccess(ChiikaApi::RequestInterface* r)
 
 	if(It != m_CallbackMap.end())
 	{
-		if(main_thread == GetThreadId())
-		{
-			RequestWrapper *obj = new RequestWrapper;
-			obj->Wrap(Nan::New(It->second.first));
+		CallbackIteratorParams* callback = new CallbackIteratorParams;
+		callback->Callback = It->second.second;
+		callback->Caller = It->second.first;
+		callback->Name = It->first;
+		callback->Request = r;
+		async.data = reinterpret_cast<void*>(callback);
 
-			Local<Function> local = Nan::New(It->second.second);
-
-			PersistentValue returnval = obj->ParseRequest(It->first,r);
-			Local<Value> ret[1] ={Nan::New(returnval)};
-			local->Call(Null(Isolate::GetCurrent()),1,ret);
-		}
-		else
-		{
-			CallbackIteratorParams* callback = new CallbackIteratorParams;
-			callback->Callback = It->second.second;
-			callback->Caller = It->second.first;
-			callback->Name = It->first;
-			callback->Request = r;
-			async.data = reinterpret_cast<void*>(callback);
-
-			uv_async_send(&async);
-		}
+		uv_async_send(&async);
 	}
 
 }
@@ -240,7 +210,7 @@ PersistentValue RequestWrapper::ParseRequest(const std::string& r,ChiikaApi::Req
 		{
 			val = Converters::AnimeToV8(root_,std::to_string(scrapeRequest->GetAnimeId()));
 		}
-		
+
 		Nan::Set(val,Nan::New("request_name").ToLocalChecked(),Nan::New(r).ToLocalChecked());
 		PersistentValue persistent;
 		persistent.Reset(val);
@@ -269,7 +239,7 @@ PersistentValue RequestWrapper::ParseRequest(const std::string& r,ChiikaApi::Req
 	{
 		Local<Object> val = Nan::New<v8::Object>();
 		PersistentValue persistent;
-		
+
 		ChiikaApi::SearchAnimeRequest* searchRequest = static_cast<ChiikaApi::SearchAnimeRequest*>(request);
 
 		if(searchRequest)
@@ -583,7 +553,7 @@ NAN_METHOD(RequestWrapper::GetAnimeDetails)
 
 	obj->m_CallbackMap.insert(std::make_pair("FakeRequestSuccess",
 		std::make_pair(caller,callbackSuccess)));
-	
+
 
 
 
