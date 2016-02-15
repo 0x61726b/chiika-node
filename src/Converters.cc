@@ -170,7 +170,7 @@ namespace Converters
 			Local<Object> animeObj = Nan::New<v8::Object>();
 			UserMangaEntry userManga = It->second;
 
-			Manga manga = userManga.Manga;
+			/*Manga manga = userManga.Manga;
 
 			FOR_(mangaKeyList,j)
 			{
@@ -178,7 +178,7 @@ namespace Converters
 					Nan::New(mangaKeyList[j]).ToLocalChecked(),
 					Nan::New(manga.GetKeyValue(mangaKeyList[j])).ToLocalChecked());
 			}
-			Nan::Set(singleAnimeObj,Nan::New("manga").ToLocalChecked(),animeObj);
+			Nan::Set(singleAnimeObj,Nan::New("manga").ToLocalChecked(),animeObj);*/
 
 			FOR_(userMangaKeyList,k)
 			{

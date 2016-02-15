@@ -1,9 +1,4 @@
 {
-'conditions': [
-  ['OS=="linux"', {
-
-  }],
-  ['OS=="win"', {
     "targets": [
         {
             "target_name": "ChiikaNative",
@@ -26,15 +21,55 @@
             "defines!":[
                 '_HAS_EXPECTIONS=0'
             ],
-            "copies":[{
-                'destination': '<(PRODUCT_DIR)',
-                "files":[
-                        "../ChiikaApi/build/Chiika/Debug/ChiikaApi.lib",
-                        "../ChiikaApi/build/Chiika/Debug/ChiikaApi.dll",
-                        "../ChiikaApi/build/Chiika/Debug/libcurl_imp.lib",
-                        "../ChiikaApi/build/Chiika/Debug/libcurl.dll"
+            "conditions":[
+                [
+                    "OS=='mac'",{
+                        "configurations":{
+                            "Debug":{
+                                "copies": [{
+                                    'destination': '<(PRODUCT_DIR)',
+                                    "files":[
+                                            "ChiikaApi/build/Chiika/Debug/ChiikaApi.so",
+                                            "ChiikaApi/build/Chiika/Debug/libcurl.so"
+                                    ]
+                                }],
+                            }
+                        }
+                    },
+                    "OS=='win'",{
+                        "configurations":{
+                            "Debug":{
+                                "msvs_settings": {
+                                    "VCCLCompilerTool": {
+                                        "ExceptionHandling": "1",
+                                        "AdditionalOptions": [
+                                            "/MTd"
+                                        ]
+                                    },
+                                    "VCLibrarianTool": {
+                                    },
+                                    "VCLinkerTool": {
+                                        "LinkTimeCodeGeneration": 1,
+                                        "LinkIncremental": 1,
+                                        "AdditionalLibraryDirectories": [
+                                            "D:/Arken/C++/ElectronProjects/chiika-node/ChiikaApi/build/Chiika/Debug",
+                                         ]
+                                    }
+                                },
+                                "copies": [{
+                                    'destination': '<(PRODUCT_DIR)',
+                                    "files":[
+                                        "ChiikaApi/build/Chiika/Debug/ChiikaApi.lib",
+                                        "ChiikaApi/build/Chiika/Debug/ChiikaApi.dll",
+                                        "ChiikaApi/build/Chiika/Debug/libcurl_imp.lib",
+                                        "ChiikaApi/build/Chiika/Debug/libcurl.dll"
+                                    ]
+                                }],
+                            }
+                        }
+                    }
                 ]
-            }],
+            ],
             "link_settings": {
                 "libraries": [
                     "-llibcurl_imp",
@@ -44,42 +79,10 @@
             "variables":{
                 "CURRENT_DIR":"<!(echo %~dp0)"
             },
-            "configurations": {
-                "Debug": {
-                    "msvs_settings": {
-                        "VCCLCompilerTool": {
-                            "ExceptionHandling": "1",
-                            "AdditionalOptions": [
-                                "/MTd"
-                            ]
-                        },
-                        "VCLibrarianTool": {
-                        },
-                        "VCLinkerTool": {
-                            "LinkTimeCodeGeneration": 1,
-                            "LinkIncremental": 1,
-                            "AdditionalLibraryDirectories": [
-                                "../../ChiikaApi/build/Chiika/Debug",
-                             ]
-                        }
-                    }
-                },
-                "Release": {
-                    "msvs_settings": {
-                        "VCCLCompilerTool": {
-                            "ExceptionHandling": "0",
-                            "AdditionalOptions": [
-                                "/MT"
-                            ]
-                        }
-                    }
-                }
-            },
             "include_dirs": [
                 "<!(node -e \"require('nan')\")",
-                "../ChiikaApi/ChiikaAPI"
+                "ChiikaApi/ChiikaAPI"
             ]
         }
-    ]}
-]]
+    ]
 }

@@ -476,9 +476,9 @@ NAN_METHOD(RequestWrapper::GetMyMangalist)
 	PersistentObject caller;
 	caller.Reset(info.This());
 
-	obj->m_CallbackMap.insert(std::make_pair(root_->GetKey(RequestApiValues::REQUEST_GETMYMANGALIST_SUCCESS),
+	obj->m_CallbackMap.insert(std::make_pair("GetMyMangalistSuccess",
 		std::make_pair(caller,callbackSuccess)));
-	obj->m_CallbackMap.insert(std::make_pair(root_->GetKey(RequestApiValues::REQUEST_GETMYMANGALIST_ERROR),
+	obj->m_CallbackMap.insert(std::make_pair("GetMyMangalistError",
 		std::make_pair(caller,callbackError)));
 
 
