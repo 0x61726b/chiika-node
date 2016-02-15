@@ -24,7 +24,6 @@ matrix:
         before_script:
           - cmake --version
           - cmake ./ChiikaApi -DCMAKE_CXX_COMPILER=${COMPILER} ${CMAKE_OPTIONS}
-
 script:
   - cd ChiikaApi && make
   - npm install
