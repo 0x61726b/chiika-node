@@ -1,0 +1,32 @@
+language: cpp
+os: linux
+
+
+git:
+  submodules: false
+
+env:
+  matrix:
+    - TRAVIS_EMPTY_JOB_WORKAROUND=true
+
+matrix:
+  exclude:
+    - env: TRAVIS_EMPTY_JOB_WORKAROUND=true
+  include:
+   - os: osx
+        compiler: clang
+        sudo: false
+        before_install:
+          - set -e # Fail the whole script whenever any command fails
+          - git submodule update --init --recursive
+        install:
+          - brew install cmake
+        before_script:
+          - cmake --version
+          - cmake ./ChiikaApi -DCMAKE_CXX_COMPILER=${COMPILER} ${CMAKE_OPTIONS}
+
+script:
+  - cd ChiikaApi && make
+  - npm install
+  - npm run conf
+  - npm run rebuild
