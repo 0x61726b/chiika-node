@@ -23,7 +23,7 @@
             ],
             "conditions":[
                 [
-                    "OS=='mac'",{
+                    'OS=="mac"',{
                         "configurations":{
                             "Debug":{
                                 "copies": [{
