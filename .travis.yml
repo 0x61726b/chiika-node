@@ -32,26 +32,14 @@ matrix:
       before_script:
         - cmake --version
         - cmake ./ChiikaApi -DCMAKE_CXX_COMPILER=${COMPILER} ${CMAKE_OPTIONS}
-    - os: linux
-      env: COMPILER=g++-4.8 CMAKE_OPTIONS="-DJSONCPP_LIB_BUILD_STATIC=ON -DJSONCPP_LIB_BUILD_SHARED=OFF"
-      compiler: gcc
-      before_install:
-        - set -e
-        - git submodule update --init --recursive
-        - sudo add-apt-repository -y ppa:ubuntu-sdk-team/ppa
-        - sudo apt-get install gcc-4.8 g++-4.8 libcap-dev
-        - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 20
-        - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 20
-        - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
-        - sudo bash ./rungcc.sh
-        - ./cmake-3.2.2-Linux-x86_64/bin/cmake .
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - gcc-4.8
-            - g++-4.8
+
+
 
 script:
   - make
+  - cd ${TRAVIS_BUILD_DIR}
+  - npm --version
+  - node --version
+  - npm install
+  - npm run conf
+  - npm run rebuild
