@@ -21,54 +21,52 @@
             "defines!":[
                 '_HAS_EXPECTIONS=0'
             ],
-            "conditions":[
-                [
-                    'OS=="mac"',{
-                        "configurations":{
-                            "Debug":{
-                                "copies": [{
-                                    'destination': '<(PRODUCT_DIR)',
-                                    "files":[
-                                            "ChiikaApi/build/Chiika/Debug/ChiikaApi.so",
-                                            "ChiikaApi/build/Chiika/Debug/libcurl.so"
-                                    ]
-                                }],
-                            }
-                        }
+            'conditions': [
+                ['OS=="mac"', {
+                    'configurations': {
+                        "Debug": {
+                            "copies": [{
+                                'destination': '<(PRODUCT_DIR)',
+                                "files":[
+                                        "ChiikaApi/build/Chiika/Debug/ChiikaApi.so",
+                                        "ChiikaApi/build/Chiika/Debug/libcurl.so"
+                                ]
+                            }],
+                        },
                     },
-                    "OS=='win'",{
-                        "configurations":{
-                            "Debug":{
-                                "msvs_settings": {
-                                    "VCCLCompilerTool": {
-                                        "ExceptionHandling": "1",
-                                        "AdditionalOptions": [
-                                            "/MTd"
-                                        ]
-                                    },
-                                    "VCLibrarianTool": {
-                                    },
-                                    "VCLinkerTool": {
-                                        "LinkTimeCodeGeneration": 1,
-                                        "LinkIncremental": 1,
-                                        "AdditionalLibraryDirectories": [
-                                            "D:/Arken/C++/ElectronProjects/chiika-node/ChiikaApi/build/Chiika/Debug",
-                                         ]
-                                    }
-                                },
-                                "copies": [{
-                                    'destination': '<(PRODUCT_DIR)',
-                                    "files":[
-                                        "ChiikaApi/build/Chiika/Debug/ChiikaApi.lib",
-                                        "ChiikaApi/build/Chiika/Debug/ChiikaApi.dll",
-                                        "ChiikaApi/build/Chiika/Debug/libcurl_imp.lib",
-                                        "ChiikaApi/build/Chiika/Debug/libcurl.dll"
+                },
+                "OS=='win'",{
+                    "configurations":{
+                        "Debug":{
+                            "msvs_settings": {
+                                "VCCLCompilerTool": {
+                                    "ExceptionHandling": "1",
+                                    "AdditionalOptions": [
+                                        "/MTd"
                                     ]
-                                }],
-                            }
+                                },
+                                "VCLibrarianTool": {
+                                },
+                                "VCLinkerTool": {
+                                    "LinkTimeCodeGeneration": 1,
+                                    "LinkIncremental": 1,
+                                    "AdditionalLibraryDirectories": [
+                                        "D:/Arken/C++/ElectronProjects/chiika-node/ChiikaApi/build/Chiika/Debug",
+                                     ]
+                                }
+                            },
+                            "copies": [{
+                                'destination': '<(PRODUCT_DIR)',
+                                "files":[
+                                    "ChiikaApi/build/Chiika/Debug/ChiikaApi.lib",
+                                    "ChiikaApi/build/Chiika/Debug/ChiikaApi.dll",
+                                    "ChiikaApi/build/Chiika/Debug/libcurl_imp.lib",
+                                    "ChiikaApi/build/Chiika/Debug/libcurl.dll"
+                                ]
+                            }],
                         }
                     }
-                ]
+                }]
             ],
             "link_settings": {
                 "libraries": [
