@@ -55,8 +55,8 @@ public:
 
 	//http://i3.kym-cdn.com/photos/images/newsfeed/000/632/366/97a.jpg
 	typedef std::map<std::string,
-		std::pair<Nan::Persistent<v8::Object, v8::CopyablePersistentTraits<v8::Object>>,
-		Nan::Persistent<v8::Function, v8::CopyablePersistentTraits<v8::Function>> >> CallbackMap;
+		std::pair<Nan::Persistent<v8::Object, v8::CopyablePersistentTraits<v8::Object> >,
+		Nan::Persistent<v8::Function, v8::CopyablePersistentTraits<v8::Function> > > > CallbackMap;
 
 
 	CallbackMap m_CallbackMap;
