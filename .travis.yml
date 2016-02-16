@@ -24,8 +24,9 @@ matrix:
         - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 20
         - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 20
         - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
-        - sudo bash ./rungcc.sh
-        - ./cmake-3.2.2-Linux-x86_64/bin/cmake ./ChiikaApi -DCMAKE_CXX_COMPILER=${COMPILER} ${CMAKE_OPTIONS}
+        - wget --no-check-certificate http://cmake.org/files/v3.2/cmake-3.2.2-Linux-x86_64.tar.gz
+        - tar -xzvf cmake-3.2.2-Linux-x86_64.tar.gz
+        - export PATH=$(pwd)/cmake-3.2.2-Linux-x86_64/bin:$PATH
       addons:
         apt:
           sources:
@@ -49,13 +50,11 @@ matrix:
           else
             brew install cmake
           fi
-      before_script:
-        - cmake --version
-        - cmake ./ChiikaApi -DCMAKE_CXX_COMPILER=${COMPILER} ${CMAKE_OPTIONS}
-
 
 
 script:
+  - cmake --version
+  - cmake ./ChiikaApi -DCMAKE_CXX_COMPILER=${COMPILER} ${CMAKE_OPTIONS}
   - make
   - cd ${TRAVIS_BUILD_DIR}
   - npm --version
