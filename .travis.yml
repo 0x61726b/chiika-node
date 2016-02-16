@@ -16,6 +16,12 @@ matrix:
     - os: linux
       env: COMPILER=g++-4.8 CMAKE_OPTIONS="-DJSONCPP_LIB_BUILD_STATIC=ON -DJSONCPP_LIB_BUILD_SHARED=OFF"
       language: node_js
+      before_script:
+        - node --version
+        - npm --version
+        - cmake --version
+        - cmake ./ChiikaApi -DCMAKE_CXX_COMPILER=${COMPILER} ${CMAKE_OPTIONS}
+        - make
       before_install:
         - set -e
         - git submodule update --init --recursive
@@ -57,12 +63,6 @@ matrix:
 
 
 script:
-  - node --version
-  - npm --version
-  - cmake --version
-  - cmake ./ChiikaApi -DCMAKE_CXX_COMPILER=${COMPILER} ${CMAKE_OPTIONS}
-  - make
   - cd ${TRAVIS_BUILD_DIR}
-  - npm install
   - npm run conf
   - npm run rebuild
