@@ -26,6 +26,9 @@
             ],
             'conditions': [
                 ['OS=="mac"', {
+                  'xcode_settings': {
+                        'OTHER_CPLUSPLUSFLAGS' : ['-stdlib=libc++'],
+                    },
                     "ldflags":[
                         "-Wl,-rpath,<!(pwd)/ChiikaApi/build/Chiika/"
                     ],
