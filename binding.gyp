@@ -35,8 +35,8 @@
                     "copies": [{
                         'destination': '<(PRODUCT_DIR)',
                         "files":[
-                                "ChiikaApi/build/Chiika/libChiikaApi.so",
-                                "ChiikaApi/build/Chiika/libcurl.so"
+                                "ChiikaApi/build/Chiika/libChiikaApi.dylib",
+                                "ChiikaApi/build/Chiika/libcurl.dylib"
                         ]
                     }],
                 },
