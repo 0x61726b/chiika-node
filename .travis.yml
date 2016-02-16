@@ -52,11 +52,17 @@ matrix:
             - npm
     - os: osx
       sudo: false
-      language: node_js
-      node_js:
-        - "4.1"
+      language: cpp
+      compiler: clang
+      env:
+        - NODE_VERSION="0.12"
       before_install:
         - set -e # Fail the whole script whenever any command fails
+        - rm -rf ~/.nvm
+        - git clone https://github.com/creationix/nvm.git ~/.nvm
+        - source ~/.nvm/nvm.sh
+        - nvm install $NODE_VERSION
+        - node --version
         - git submodule update --init --recursive
         - node --version
         - npm --version
@@ -66,8 +72,6 @@ matrix:
         - cd build
         - cmake .. -DCMAKE_CXX_COMPILER=${COMPILER} ${CMAKE_OPTIONS}
         - make
-      install:
-        - brew install cmake
 
 
 script:
