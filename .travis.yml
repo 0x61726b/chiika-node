@@ -16,12 +16,6 @@ matrix:
     - os: linux
       env: COMPILER=g++-4.8 CMAKE_OPTIONS="-DJSONCPP_LIB_BUILD_STATIC=ON -DJSONCPP_LIB_BUILD_SHARED=OFF"
       language: node_js
-      before_script:
-        - node --version
-        - npm --version
-        - cmake --version
-        - cmake ./ChiikaApi -DCMAKE_CXX_COMPILER=${COMPILER} ${CMAKE_OPTIONS}
-        - make
       before_install:
         - set -e
         - git submodule update --init --recursive
@@ -33,6 +27,11 @@ matrix:
         - wget --no-check-certificate http://cmake.org/files/v3.2/cmake-3.2.2-Linux-x86_64.tar.gz
         - tar -xzvf cmake-3.2.2-Linux-x86_64.tar.gz
         - export PATH=$(pwd)/cmake-3.2.2-Linux-x86_64/bin:$PATH
+        - node --version
+        - npm --version
+        - ./cmake-3.2.2-Linux-x86_64/bin/cmake --version
+        - ./cmake-3.2.2-Linux-x86_64/bin/cmake ./ChiikaApi -DCMAKE_CXX_COMPILER=${COMPILER} ${CMAKE_OPTIONS}
+        - make
       node_js:
         - "stable"
       addons:
