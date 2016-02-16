@@ -26,20 +26,20 @@
             ],
             'conditions': [
                 ['OS=="mac"', {
-                        "ldflags":[
-                            "-Wl,-rpath,<!(pwd)/ChiikaApi/build/Chiika/"
-                        ],
-                        "libraries":[
-                            "<!(pwd)/ChiikaApi/build/Chiika/libChiikaApi.so"
-                        ],
-                        "copies": [{
-                            'destination': '<(PRODUCT_DIR)',
-                            "files":[
-                                    "ChiikaApi/build/Chiika/libChiikaApi.so",
-                                    "ChiikaApi/build/Chiika/libcurl.so"
-                            ]
-                        }],
-                    },
+                    "ldflags":[
+                        "-Wl,-rpath,<!(pwd)/ChiikaApi/build/Chiika/"
+                    ],
+                    "libraries":[
+                        "<!(pwd)/ChiikaApi/build/Chiika/libChiikaApi.so"
+                    ],
+                    "copies": [{
+                        'destination': '<(PRODUCT_DIR)',
+                        "files":[
+                                "ChiikaApi/build/Chiika/libChiikaApi.so",
+                                "ChiikaApi/build/Chiika/libcurl.so"
+                        ]
+                    }],
+                },
                 'OS=="linux"', {
                     "ldflags":[
                         "-Wl,-rpath,<!(pwd)/ChiikaApi/build/Chiika/"

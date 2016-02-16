@@ -57,11 +57,10 @@ matrix:
       env:
         - NODE_VERSION="0.12"
       before_install:
-        - set -e # Fail the whole script whenever any command fails
         - rm -rf ~/.nvm
         - git clone https://github.com/creationix/nvm.git ~/.nvm
         - source ~/.nvm/nvm.sh
-        - nvm install $NODE_VERSION
+        - nvm install node
         - node --version
         - git submodule update --init --recursive
         - node --version
