@@ -53,15 +53,13 @@ matrix:
 
 
 script:
+  - sudo apt-get install nodejs npm
+  - npm --version
+  - node --version
   - cmake --version
   - cmake ./ChiikaApi -DCMAKE_CXX_COMPILER=${COMPILER} ${CMAKE_OPTIONS}
   - make
   - cd ${TRAVIS_BUILD_DIR}
-  - sudo npm cache clean -f
-  - sudo npm install -g n
-  - sudo n stable
-  - npm --version
-  - node --version
   - npm install
   - npm run conf
   - npm run rebuild
