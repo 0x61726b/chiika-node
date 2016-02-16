@@ -39,6 +39,12 @@
                     },
                 },
                 'OS=="linux"', {
+                    "ldflags":[
+                        "-Wl,-rpath,<!(pwd)/ChiikaApi/build/Chiika/"
+                    ],
+                    "libraries":[
+                        "<!(pwd)/ChiikaApi/build/Chiika/libChiikaApi.so"
+                    ],
                     "copies": [{
                         'destination': '<(PRODUCT_DIR)',
                         "files":[
@@ -79,9 +85,6 @@
                         }
                     }
                 }]
-            ],
-            "libraries": [
-		  "/usr/lib/libChiikaApi.so"
             ],
             "variables":{
                 "CURRENT_DIR":"<!(echo %~dp0)"
