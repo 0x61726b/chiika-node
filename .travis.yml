@@ -34,6 +34,8 @@ matrix:
           packages:
             - gcc-4.8
             - g++-4.8
+            - nodejs
+            - npm
     - os: osx
       compiler: clang
       sudo: false
@@ -53,13 +55,12 @@ matrix:
 
 
 script:
-  - sudo apt-get install nodejs npm
-  - npm --version
   - node --version
+  - npm --version
   - cmake --version
-  - cmake ./ChiikaApi -DCMAKE_CXX_COMPILER=${COMPILER} ${CMAKE_OPTIONS}
-  - make
-  - cd ${TRAVIS_BUILD_DIR}
-  - npm install
-  - npm run conf
-  - npm run rebuild
+  #- cmake ./ChiikaApi -DCMAKE_CXX_COMPILER=${COMPILER} ${CMAKE_OPTIONS}
+  #- make
+  #- cd ${TRAVIS_BUILD_DIR}
+  #- npm install
+  #- npm run conf
+  #- npm run rebuild
