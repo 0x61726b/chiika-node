@@ -34,7 +34,7 @@
                         "-Wl,-rpath,<!(pwd)/ChiikaApi/build/Chiika/"
                     ],
                     "libraries":[
-                        "<!(pwd)/ChiikaApi/build/Chiika/libChiikaApi.so"
+                        "<!(pwd)/ChiikaApi/build/Chiika/libChiikaApi.dylib"
                     ],
                     "copies": [{
                         'destination': '<(PRODUCT_DIR)',
