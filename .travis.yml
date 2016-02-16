@@ -10,6 +10,8 @@ env:
     - TRAVIS_EMPTY_JOB_WORKAROUND=true
 
 matrix:
+  allow_failures:
+    os: linux
   exclude:
     - env: TRAVIS_EMPTY_JOB_WORKAROUND=true
   include:
