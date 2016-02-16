@@ -69,7 +69,7 @@ matrix:
         - cd ChiikaApi
         - mkdir build
         - cd build
-        - cmake .. -DCMAKE_CXX_COMPILER=${COMPILER} ${CMAKE_OPTIONS}
+        - cmake .. -DCMAKE_CXX_COMPILER=${COMPILER} ${CMAKE_OPTIONS} -DCMAKE_OSX_DEPLOYMENT=10.8
         - make
 
 
