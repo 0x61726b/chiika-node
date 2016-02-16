@@ -27,6 +27,7 @@
             'conditions': [
                 ['OS=="mac"', {
                   'xcode_settings': {
+                        'MACOSX_DEPLOYMENT_TARGET': '10.8'
                         'OTHER_CPLUSPLUSFLAGS' : ['-stdlib=libc++'],
                     },
                     "ldflags":[
