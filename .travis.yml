@@ -51,11 +51,10 @@ matrix:
             - nodejs
             - npm
     - os: osx
-      compiler: clang
       sudo: false
       language: node_js
       node_js:
-        - "stable"
+        - "4.1"
       before_install:
         - set -e # Fail the whole script whenever any command fails
         - git submodule update --init --recursive
